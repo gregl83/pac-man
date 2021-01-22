@@ -1,24 +1,27 @@
 use std::error::Error;
 
 use lambda_runtime::{error::HandlerError, lambda, Context};
-use log::{self, error};
-use serde_derive::{Deserialize, Serialize};
+use log::{LevelFilter, error};
+use simple_logger::SimpleLogger;
 use simple_error::bail;
-use simple_logger;
+use serde::{Deserialize, Serialize};
 
-#[derive(Deserialize)]
+#[derive(Serialize, Deserialize)]
 struct CustomEvent {
     #[serde(rename = "firstName")]
     first_name: String,
 }
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize)]
 struct CustomOutput {
     message: String,
 }
 
 fn main() -> Result<(), Box<dyn Error>> {
-    simple_logger::init_with_level(log::Level::Debug)?;
+    SimpleLogger::new()
+        .with_level(LevelFilter::Debug)
+        .init()
+        .unwrap();
 
     lambda!(my_handler);
 
