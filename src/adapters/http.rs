@@ -1,24 +1,16 @@
 use hyper::{
-    body::HttpBody,
+    Body,
     Client,
 };
-use tokio::io::{
-    self,
-    AsyncWriteExt
-};
+use hyper_tls::HttpsConnector;
+use http::Request;
 
-type Data = Box<dyn HttpBody + Unpin + ?Sized>;
-type HttpResult<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync>>;
+pub async fn get_stream() -> Body {
+    let https = HttpsConnector::new();
+    let client = Client::builder().build::<_, Body>(https);
 
-#[tokio::main]
-pub async fn get_stream() -> HttpResult<Data> {
-    let client = Client::new();
+    let request = Request::get("http://httpbin.org/ip").body(Body::empty()).unwrap(); // fixme - dynamic request
+    let response = client.request(request).await.unwrap();
 
-    let uri = "http://httpbin.org/ip".parse()?;
-
-    let mut resp = client.get(uri).await?;
-
-    Ok(Box::new(resp.body_mut().data()))
+    response.into_body()
 }
-
-// todo - build requests wrapper!!!
