@@ -23,3 +23,5 @@ tokio = { version = "1.1.0", features = ["full"] }
 hyper = { version = "0.14.2", features = ["full"] }
 hyper-tls = "0.5.0"
 http = "0.2.3"
+rusoto_core = "0.46.0"
+rusoto_s3 = "0.46.0"

@@ -9,7 +9,10 @@ use simple_error::bail;
 use serde::{Deserialize, Serialize};
 use futures::stream::StreamExt;
 
-use adapters::http;
+use adapters::{
+    http,
+    s3
+};
 
 #[derive(Serialize, Deserialize)]
 struct CustomEvent {
@@ -21,7 +24,6 @@ struct Data {
     content: String,
 }
 
-
 #[tokio::main]
 async fn main() -> Result<(), Box<dyn Error>> {
     SimpleLogger::new()
@@ -31,6 +33,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let (headers, mut body) = http::get_stream().await;
 
+    s3::put_object(body);
+
+    println!("{:?}", headers);
     while let Some(chunk) = body.next().await {
         println!("{:?}", chunk);
     }
