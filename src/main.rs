@@ -31,14 +31,11 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .init()
         .unwrap();
 
-    let (headers, mut body) = http::get_stream().await;
+    let (_, mut body) = http::get_stream().await;
 
-    s3::put_object(body);
+    let result = s3::put_object(body).await;
 
-    println!("{:?}", headers);
-    while let Some(chunk) = body.next().await {
-        println!("{:?}", chunk);
-    }
+    println!("{:?}", result);
 
     Ok(())
     //
