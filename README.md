@@ -25,7 +25,7 @@ Experimental
 
 Lambda functions can be executed with the help of [Docker](https://github.com/awslabs/aws-lambda-rust-runtime#docker).
 
-For convenience, [docker-test.sh](/docker-test.sh) launches a lambda build using docker (requires `~/.aws/credentials`).
+For convenience, [docker-test.sh](/docker-test.sh) launches a lambda build using docker (AWS_SECRET_ACCESS_KEY and AWS_ACCESS_KEY_ID env vars required).
 
 ### Lambda Build & Run
 
@@ -41,17 +41,19 @@ For convenience, [docker-test.sh](/docker-test.sh) launches a lambda build using
 **Unzip Lambda Package**
 ```bash
 ../pac-man$ unzip -o \
-                target/lambda/release/pac-man.zip \
-                -d /tmp/lambda
+      target/lambda/release/pac-man.zip \
+      -d /tmp/lambda
 ```
 
 **Run Unzipped Lambda Package**
 ```bash
 ../pac-man$ docker run \
-                -i -e DOCKER_LAMBDA_USE_STDIN=1 \
-                --rm \
-                -v /tmp/lambda:/var/task \
-                lambci/lambda:provided
+      -i -e DOCKER_LAMBDA_USE_STDIN=1 \
+      -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+      -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
+      --rm \
+      -v /tmp/lambda:/var/task \
+      lambci/lambda:provided
 ```
 
 ## Todos

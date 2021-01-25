@@ -39,16 +39,18 @@ if [[ -n ${PACMAN_BUILD} && "${PACMAN_BUILD}"=="1" ]]; then
   echo "Enter Payload Then Press CTRL-D..." && \
   docker run \
       -i -e DOCKER_LAMBDA_USE_STDIN=1 \
+      -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+      -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
       --rm \
-      -v ${HOME}/.aws/credentials:/root/.aws/credentials \
       -v /tmp/lambda:/var/task \
       lambci/lambda:provided
 else
   echo "Enter Payload Then Press CTRL-D..." && \
   docker run \
       -i -e DOCKER_LAMBDA_USE_STDIN=1 \
+      -e AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID} \
+      -e AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY} \
       --rm \
-      -v ${HOME}/.aws/:/root/.aws/ \
       -v /tmp/lambda:/var/task \
       lambci/lambda:provided
 fi
