@@ -43,7 +43,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     let result = s3::put_object(
         "us-east-1",
-        "",
+        "rust-pac-man",
         "filename",
         content_length,
         body
@@ -51,9 +51,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
     println!("{:?}", result);
 
-    Ok(())
-
     //lambda!(my_handler);
+
+    Ok(())
 }
 
 async fn my_handler(e: CustomEvent, c: Context) -> Result<Data, HandlerError> {

@@ -25,8 +25,11 @@ Experimental
 
 Lambda functions can be executed with the help of [Docker](https://github.com/awslabs/aws-lambda-rust-runtime#docker).
 
-### Build Lambda Package
+For convenience, [docker-test.sh](/docker-test.sh) launches a lambda build using docker (requires `~/.aws/credentials`).
 
+### Lambda Build & Run
+
+**Build Lambda Package**
 ```bash
 ../pac-man$ docker run --rm \
       -v ${PWD}:/code \
@@ -35,16 +38,14 @@ Lambda functions can be executed with the help of [Docker](https://github.com/aw
       softprops/lambda-rust
 ```
 
-### Unzip Lambda Package
-
+**Unzip Lambda Package**
 ```bash
 ../pac-man$ unzip -o \
                 target/lambda/release/pac-man.zip \
                 -d /tmp/lambda
 ```
 
-### Run Unzipped Lambda Package
-
+**Run Unzipped Lambda Package**
 ```bash
 ../pac-man$ docker run \
                 -i -e DOCKER_LAMBDA_USE_STDIN=1 \

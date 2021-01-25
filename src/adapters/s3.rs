@@ -12,9 +12,9 @@ use rusoto_s3::{
 use crate::adapters::BodyStream;
 
 pub async fn put_object(
-    region: &str,
-    bucket: &str,
-    filename: &str,
+    region: &'static str,
+    bucket: &'static str,
+    filename: &'static str,
     content_length: i64,
     body: BodyStream
 ) -> PutObjectOutput {
