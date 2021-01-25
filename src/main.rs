@@ -31,15 +31,21 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .init()
         .unwrap();
 
-    let (_, body) = http::get_stream().await;
+    let uri = "https://demo.ckan.org/api/action/package_search?facet.field=[%22tags%22]&facet.limit=1000000&rows=0";
+    let (headers, body) = http::get_stream(uri).await;
+    let content_length: i64 = headers
+        .get("content-length")
+        .unwrap()
+        .to_str()
+        .unwrap()
+        .parse()
+        .unwrap();
 
-    let result = s3::put_object(body).await;
+    let result = s3::put_object(content_length, body).await;
 
     println!("{:?}", result);
 
     Ok(())
-    //
-    // println!("{:?}", res);
 
     //lambda!(my_handler);
 }

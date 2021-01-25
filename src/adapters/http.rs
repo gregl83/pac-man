@@ -16,11 +16,11 @@ use hyper_tls::HttpsConnector;
 
 use crate::adapters::BodyStream;
 
-pub async fn get_stream() -> (HeaderMap, BodyStream) {
+pub async fn get_stream(uri: &str) -> (HeaderMap, BodyStream) {
     let https = HttpsConnector::new();
     let client = Client::builder().build::<_, Body>(https);
 
-    let request = Request::get("http://httpbin.org/ip").body(Body::empty()).unwrap(); // fixme - dynamic request
+    let request = Request::get(uri).body(Body::empty()).unwrap();
     let response = client.request(request).await.unwrap();
 
     let headers = response.headers().clone();
