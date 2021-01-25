@@ -1,3 +1,5 @@
+use std::str::FromStr;
+
 use rusoto_core::Region;
 use rusoto_s3::{
     S3,
@@ -9,9 +11,10 @@ use rusoto_s3::{
 
 use crate::adapters::BodyStream;
 
-pub async fn put_object(content_length: i64, body: BodyStream) -> PutObjectOutput {
+pub async fn put_object(region: &str, content_length: i64, body: BodyStream) -> PutObjectOutput {
+    let region = Region::from_str(region).unwrap();
     let stream = StreamingBody::new(body);
-    let client = S3Client::new(Region::UsEast1); // fixme - dynamic region
+    let client = S3Client::new(region);
     client.put_object(PutObjectRequest {
         bucket: String::from("rust-pac-man"),
         key: String::from("filename"),
