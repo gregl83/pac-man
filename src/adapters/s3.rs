@@ -1,6 +1,3 @@
-use std::io::Result;
-use futures::Stream;
-use bytes::Bytes;
 use rusoto_core::Region;
 use rusoto_s3::{
     S3,
@@ -10,7 +7,7 @@ use rusoto_s3::{
     StreamingBody
 };
 
-type BodyStream = Box<dyn Stream<Item = Result<Bytes>> + Send + Sync + Unpin>;
+use crate::adapters::BodyStream;
 
 pub async fn put_object(body: BodyStream) -> PutObjectOutput {
     let stream = StreamingBody::new(body);

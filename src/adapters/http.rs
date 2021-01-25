@@ -1,13 +1,11 @@
 use std::io::{
     Error,
-    ErrorKind,
-    Result
+    ErrorKind
 };
 use futures::stream::{
     Stream,
     TryStreamExt
 };
-use bytes::Bytes;
 use http::Request;
 use hyper::{
     Client,
@@ -16,7 +14,7 @@ use hyper::{
 };
 use hyper_tls::HttpsConnector;
 
-type BodyStream = Box<dyn Stream<Item = Result<Bytes>> + Send + Sync + Unpin>;
+use crate::adapters::BodyStream;
 
 pub async fn get_stream() -> (HeaderMap, BodyStream) {
     let https = HttpsConnector::new();

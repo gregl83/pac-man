@@ -31,7 +31,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .init()
         .unwrap();
 
-    let (_, mut body) = http::get_stream().await;
+    let (_, body) = http::get_stream().await;
 
     let result = s3::put_object(body).await;
 
