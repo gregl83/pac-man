@@ -41,8 +41,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .parse()
         .unwrap();
 
-    let region = "us-east-1";
-    let result = s3::put_object(region, content_length, body).await;
+    let result = s3::put_object(
+        "us-east-1",
+        "",
+        "filename",
+        content_length,
+        body
+    ).await;
 
     println!("{:?}", result);
 

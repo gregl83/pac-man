@@ -11,10 +11,15 @@ Experimental
 
 ## Service Dependencies
 
-- GitHub Actions CI/CD
-- AWS Secrets Manager
+**Required**
+
 - AWS Lambda
 - AWS S3
+
+**Optional**
+
+- GitHub Actions CI/CD
+- AWS Secrets Manager
 
 ## Testing
 
@@ -38,7 +43,7 @@ Lambda functions can be executed with the help of [Docker](https://github.com/aw
                 -d /tmp/lambda
 ```
 
-### Run Unzipped Package
+### Run Unzipped Lambda Package
 
 ```bash
 ../pac-man$ docker run \
@@ -47,6 +52,10 @@ Lambda functions can be executed with the help of [Docker](https://github.com/aw
                 -v /tmp/lambda:/var/task \
                 lambci/lambda:provided
 ```
+
+## Todos
+
+- Handle paginated APIs
 
 ## License
 
