@@ -40,6 +40,8 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
         .parse()
         .unwrap();
 
+    let t = event["name"].as_object().unwrap();
+
     let region = event["destination"]["region"].as_str().unwrap();
     let collection = event["destination"]["collection"].as_str().unwrap();
     let name = event["destination"]["name"].as_str().unwrap();
@@ -50,7 +52,7 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
         name,
         content_length,
         body
-    ).await?;
+    ).await;
 
     Ok(event)
 }
