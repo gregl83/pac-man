@@ -20,6 +20,7 @@ Experimental
 
 - [GitHub Actions CI/CD](https://github.com/features/actions)
 - [AWS Secrets Manager](https://aws.amazon.com/secrets-managser/)
+- [AWS EventBridge](https://aws.amazon.com/eventbridge/)
 
 ## Testing
 
@@ -62,6 +63,7 @@ Lambda functions can be executed with the help of [Docker](https://github.com/aw
 
 ## Todos
 
+- API Headers (Auth etc)
 - Handle paginated APIs
 
 ## License
