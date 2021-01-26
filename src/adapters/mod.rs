@@ -132,13 +132,13 @@ mod tests {
         let credentials = Some(("username", "password"));
         let hostname = "host.name.com";
         let port: Option<u64> = Some(8080);
-        let path = Some("/yellow/brick/road");
+        let path = Some("/follow/the");
         let mut params = Map::new();
         params.insert(String::from("name"), Value::from("value"));
         let params = Some(&params);
-        let fragment = Some("/follow/the");
+        let fragment = Some("/yellow/brick/road");
 
-        let expect = String::from("https://username:password@host.name.com:8080/yellow/brick/road?name=value#/follow/the");
+        let expect = String::from("https://username:password@host.name.com:8080/follow/the?name=value#/yellow/brick/road");
         let actual = to_uri(scheme, credentials, hostname, port, path, params, fragment);
         assert_eq!(actual, expect);
     }

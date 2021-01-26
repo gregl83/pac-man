@@ -36,11 +36,11 @@ Experimental
     },
     "hostname": "example.com",
     "port": 8080,
-    "path": "/yellow/brick/road",
+    "path": "/follow/the",
     "params": {
       "name": "value"    
     },
-    "fragment": "/follow/the"
+    "fragment": "/yellow/brick/road"
   },
   "destination": {
     "region": "us-east-1",
