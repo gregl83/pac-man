@@ -28,21 +28,7 @@ async fn main() -> Result<(), Error> {
 }
 
 async fn func(event: Value, _: Context) -> Result<Value, Error> {
-    // todo - move source parsing w/err handles to fn
-    let scheme = event["source"]["scheme"].as_str().unwrap();
-    let credentials = Some(
-        (
-            event["source"]["username"].as_str().unwrap(),
-            event["source"]["password"].as_str().unwrap(),
-        )
-    );
-    let hostname = event["source"]["hostname"].as_str().unwrap();
-    let port = event["source"]["port"].as_u64();
-    let path = event["source"]["path"].as_str();
-    let params = event["source"]["params"].as_object();
-    let fragment = event["source"]["fragment"].as_str();
-    let uri = to_uri(scheme, credentials, hostname, port, path, params, fragment);
-
+    let uri = source_to_uri(&event["source"]);
     let (headers, body) = http::get_stream(&uri).await;
     let content_length: i64 = headers
         .get("content-length")
@@ -65,4 +51,39 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
     ).await;
 
     Ok(event)
+}
+
+/// Event Source to URI  - Checks for optional parts
+fn source_to_uri(source: &Value) -> String {
+    let scheme = source["scheme"].as_str().unwrap();
+
+    let username = source.get("username");
+    let password = source.get("password");
+    let credentials = match (username, password) {
+        (Some(u), Some(p)) => {
+            Some((u.as_str().unwrap(), p.as_str().unwrap()))
+        }
+        _ => None
+    };
+
+    let hostname = source["hostname"].as_str().unwrap();
+
+    let port = match source.get("port") {
+        Some(port) => port.as_u64(),
+        _ => None
+    };
+    let path = match source.get("path") {
+        Some(v) => v.as_str(),
+        _ => None
+    };
+    let params = match source.get("params") {
+        Some(v) => v.as_object(),
+        _ => None
+    };
+    let fragment = match source.get("fragment") {
+        Some(v) => v.as_str(),
+        _ => None
+    };
+
+    to_uri(scheme, credentials, hostname, port, path, params, fragment)
 }
