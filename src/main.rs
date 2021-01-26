@@ -1,12 +1,10 @@
 mod adapters;
 
-use std::error::Error;
-
-use lambda_runtime::{error::HandlerError, lambda, Context};
+use lambda::{handler_fn, Context};
 use log::{LevelFilter, error};
 use simple_logger::SimpleLogger;
 use simple_error::bail;
-use serde::{Deserialize, Serialize};
+use serde_json::Value;
 use futures::stream::StreamExt;
 
 use adapters::{
@@ -14,23 +12,23 @@ use adapters::{
     s3
 };
 
-#[derive(Serialize, Deserialize)]
-struct CustomEvent {
-    id: i8,
-}
-
-#[derive(Serialize, Deserialize)]
-struct Data {
-    content: String,
-}
+type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 
 #[tokio::main]
-async fn main() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<(), Error> {
     SimpleLogger::new()
         .with_level(LevelFilter::Debug)
         .init()
         .unwrap();
 
+    let func = handler_fn(func);
+
+    lambda::run(func).await?;
+
+    Ok(())
+}
+
+async fn func(event: Value, _: Context) -> Result<Value, Error> {
     let uri = "https://demo.ckan.org/api/action/package_search?facet.field=[%22tags%22]&facet.limit=1000000&rows=0";
     let (headers, body) = http::get_stream(uri).await;
     let content_length: i64 = headers
@@ -49,18 +47,5 @@ async fn main() -> Result<(), Box<dyn Error>> {
         body
     ).await;
 
-    lambda!(my_handler);
-
-    //Ok(())
-}
-
-async fn my_handler(e: CustomEvent, c: Context) -> Result<Data, HandlerError> {
-    // if e.id == "" {
-    //     error!("Empty id in request {}", c.aws_request_id);
-    //     bail!("Empty id");
-    // }
-
-    Ok(Data {
-        content: format!("id: {}", e.id),
-    })
+    Ok(event)
 }

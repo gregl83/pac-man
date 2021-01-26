@@ -13,19 +13,21 @@ Experimental
 
 **Required**
 
-- AWS Lambda
-- AWS S3
+- [AWS Lambda](https://aws.amazon.com/lambda/)
+- [AWS S3](https://aws.amazon.com/s3/)
 
 **Optional**
 
-- GitHub Actions CI/CD
-- AWS Secrets Manager
+- [GitHub Actions CI/CD](https://github.com/features/actions)
+- [AWS Secrets Manager](https://aws.amazon.com/secrets-managser/)
 
 ## Testing
 
 Lambda functions can be executed with the help of [Docker](https://github.com/awslabs/aws-lambda-rust-runtime#docker).
 
-For convenience, [docker-test.sh](/docker-test.sh) launches a lambda build using docker (AWS_SECRET_ACCESS_KEY and AWS_ACCESS_KEY_ID env vars required).
+**Convenience Executable**
+
+[docker-test.sh](/docker-test.sh) launches a Lambda build using Docker (AWS_SECRET_ACCESS_KEY and AWS_ACCESS_KEY_ID env vars required).
 
 ### Lambda Build & Run
 

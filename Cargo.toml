@@ -14,15 +14,16 @@ homepage = "https://crates.io/crates/pac-man"
 
 [dependencies]
 futures = "0.3.12"
-lambda_runtime = "0.2.1"
+lambda = { git = "https://github.com/awslabs/aws-lambda-rust-runtime", branch = "master" }
 log = "0.4.13"
 simple_logger = "1.11.0"
 simple-error = "0.2.3"
-serde = { version = "1.0.120", features = ["derive"] }
-tokio = { version = "1.1.0", features = ["full"] }
-bytes = "1.0.1"
-hyper = { version = "0.14.2", features = ["full"] }
-hyper-tls = "0.5.0"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1.0.39"
+tokio = { version = "0.2.4", features = ["full"] }
+bytes = "0.5.0"
+hyper = "0.13.9"
+hyper-tls = "0.4.3"
 http = "0.2.3"
-rusoto_core = "0.46.0"
-rusoto_s3 = "0.46.0"
+rusoto_core = "0.45.0"
+rusoto_s3 = "0.45.0"
