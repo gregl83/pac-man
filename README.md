@@ -28,10 +28,24 @@ Experimental
 
 ```json
 {
+  "source": {
+    "scheme": "https",
+    "credentials": {
+      "username": "pseudo",
+      "password": "woot!"    
+    },
+    "hostname": "example.com",
+    "port": 8080,
+    "path": "/yellow/brick/road",
+    "params": {
+      "name": "value"    
+    },
+    "fragment": "/follow/the"
+  },
   "destination": {
     "region": "us-east-1",
     "collection": "bucket-name",
-    "name": "filename"  
+    "name": "key"
   }
 }
 ```
