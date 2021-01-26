@@ -30,23 +30,51 @@ fn to_query(params: QueryParams) -> String {
     query
 }
 
-/// Construct URI string from parts
+/// Construct URI String from parts
 ///
 /// Assumption:
-///
 /// <scheme>://<username>:<password>@<subdomain.domain.tld>:<port><path>?<query>#<fragment>
 ///
 /// Used to process URIs from configuration based functions
+///
+/// todo - all kinds of splendid err handlin
 pub fn to_uri(
     scheme: &str,
-    username: Option<&str>,
-    password: Option<&str>,
+    credentials: Option<(&str, &str)>,
     hostname: &str,
-    port: Option<u16>,
-    path: &str,
-    params: QueryParams
-) -> Result<String, io::Error> {
-    Ok(format!(""))
+    port: Option<i64>,
+    path: Option<&str>,
+    params: QueryParams,
+    fragment: Option<&str>
+) -> String {
+    let mut uri = format!("{}://", scheme);
+
+    if let Some((username, password)) = credentials {
+        uri.push_str(format!("{}:{}@", username, password).as_str());
+    }
+
+    uri.push_str(hostname);
+
+    if let Some(port) = port {
+        uri.push_str(format!(":{}", port).as_str());
+    }
+
+    uri.push('/');
+    if let Some(path) = path {
+        if path.chars().next().unwrap() == '/' {
+            uri.push_str(&path[1..]);
+        } else {
+            uri.push_str(path);
+        }
+    }
+
+    uri.push_str(to_query(params).as_str());
+
+    if let Some(fragment) = fragment {
+        uri.push_str(format!("#{}", fragment).as_str());
+    }
+
+    uri
 }
 
 #[cfg(test)]
@@ -78,6 +106,37 @@ mod tests {
         params.insert(String::from("c"), Value::from("charlie"));
         let expect = String::from("?a=alpha&b=bravo&c=charlie");
         let actual = to_query(params);
+        assert_eq!(actual, expect);
+    }
+
+    #[test]
+    fn to_uri_basic() {
+        let scheme = "https";
+        let credentials = None;
+        let hostname = "host.name.com";
+        let port = None;
+        let path = None;
+        let mut params = Map::new();
+        let fragment = None;
+
+        let expect = String::from("https://host.name.com/");
+        let actual = to_uri(scheme, credentials, hostname, port, path, params, fragment);
+        assert_eq!(actual, expect);
+    }
+
+    #[test]
+    fn to_uri_complex() {
+        let scheme = "https";
+        let credentials = Some(("username", "password"));
+        let hostname = "host.name.com";
+        let port: Option<i64> = Some(8080);
+        let path = Some("/yellow/brick/road");
+        let mut params = Map::new();
+        params.insert(String::from("name"), Value::from("value"));
+        let fragment = Some("/follow/the");
+
+        let expect = String::from("https://username:password@host.name.com:8080/yellow/brick/road?name=value#/follow/the");
+        let actual = to_uri(scheme, credentials, hostname, port, path, params, fragment);
         assert_eq!(actual, expect);
     }
 }
