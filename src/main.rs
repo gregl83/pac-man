@@ -27,6 +27,8 @@ async fn main() -> Result<(), Error> {
 }
 
 async fn func(event: Value, _: Context) -> Result<Value, Error> {
+    println!("{:?}", event);
+
     // todo - build url using hashmap optional values + pattern
     let uri = "https://demo.ckan.org/api/action/package_search?facet.field=[%22tags%22]&facet.limit=1000000&rows=0";
     let (headers, body) = http::get_stream(uri).await;
@@ -38,16 +40,17 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
         .parse()
         .unwrap();
 
-    // todo - region variable
-    // todo - bucket variable
-    // todo - filename variable
-    let _ = s3::put_object(
-        "us-east-1",
-        "rust-pac-man",
-        "filename",
+    let region = event["destination"]["region"].as_str().unwrap();
+    let collection = event["destination"]["collection"].as_str().unwrap();
+    let name = event["destination"]["name"].as_str().unwrap();
+
+    s3::put_object(
+        region,
+        collection,
+        name,
         content_length,
         body
-    ).await;
+    ).await?;
 
     Ok(event)
 }

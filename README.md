@@ -22,6 +22,20 @@ Experimental
 - [AWS Secrets Manager](https://aws.amazon.com/secrets-managser/)
 - [AWS EventBridge](https://aws.amazon.com/eventbridge/)
 
+## Usage
+
+**Lambda Event**
+
+```json
+{
+  "destination": {
+    "region": "us-east-1",
+    "collection": "bucket-name",
+    "name": "filename"  
+  }
+}
+```
+
 ## Testing
 
 Lambda functions can be executed with the help of [Docker](https://github.com/awslabs/aws-lambda-rust-runtime#docker).
