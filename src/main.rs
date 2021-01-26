@@ -9,7 +9,8 @@ use futures::stream::StreamExt;
 
 use adapters::{
     http,
-    s3
+    s3,
+    to_uri
 };
 
 type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
@@ -27,11 +28,22 @@ async fn main() -> Result<(), Error> {
 }
 
 async fn func(event: Value, _: Context) -> Result<Value, Error> {
-    println!("{:?}", event);
+    // todo - move source parsing w/err handles to fn
+    let scheme = event["source"]["scheme"].as_str().unwrap();
+    let credentials = Some(
+        (
+            event["source"]["username"].as_str().unwrap(),
+            event["source"]["password"].as_str().unwrap(),
+        )
+    );
+    let hostname = event["source"]["hostname"].as_str().unwrap();
+    let port = event["source"]["port"].as_u64();
+    let path = event["source"]["path"].as_str();
+    let params = event["source"]["params"].as_object();
+    let fragment = event["source"]["fragment"].as_str();
+    let uri = to_uri(scheme, credentials, hostname, port, path, params, fragment);
 
-    // todo - build url using hashmap optional values + pattern
-    let uri = "https://demo.ckan.org/api/action/package_search?facet.field=[%22tags%22]&facet.limit=1000000&rows=0";
-    let (headers, body) = http::get_stream(uri).await;
+    let (headers, body) = http::get_stream(&uri).await;
     let content_length: i64 = headers
         .get("content-length")
         .unwrap()
@@ -39,8 +51,6 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
         .unwrap()
         .parse()
         .unwrap();
-
-    let t = event["name"].as_object().unwrap();
 
     let region = event["destination"]["region"].as_str().unwrap();
     let collection = event["destination"]["collection"].as_str().unwrap();

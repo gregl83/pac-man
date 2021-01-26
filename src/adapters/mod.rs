@@ -14,7 +14,7 @@ type QueryParams = Map<String, Value>;
 type BodyStream = Box<dyn Stream<Item = io::Result<Bytes>> + Send + Sync + Unpin>;
 
 /// Construct Query from Params Map
-fn to_query(params: QueryParams) -> String {
+fn to_query(params: &QueryParams) -> String {
     let mut num_params = params.len();
     let mut query = String::new();
 
@@ -38,14 +38,14 @@ fn to_query(params: QueryParams) -> String {
 /// Used to process URIs from configuration based functions
 ///
 /// todo - all kinds of splendid err handlin
-pub fn to_uri(
-    scheme: &str,
-    credentials: Option<(&str, &str)>,
-    hostname: &str,
-    port: Option<i64>,
-    path: Option<&str>,
-    params: QueryParams,
-    fragment: Option<&str>
+pub fn to_uri<'a>(
+    scheme: &'a str,
+    credentials: Option<(&'a str, &'a str)>,
+    hostname: &'a str,
+    port: Option<u64>,
+    path: Option<&'a str>,
+    params: Option<&'a QueryParams>,
+    fragment: Option<&'a str>
 ) -> String {
     let mut uri = format!("{}://", scheme);
 
@@ -68,7 +68,9 @@ pub fn to_uri(
         }
     }
 
-    uri.push_str(to_query(params).as_str());
+    if let Some(params) = params {
+        uri.push_str(to_query(params).as_str());
+    }
 
     if let Some(fragment) = fragment {
         uri.push_str(format!("#{}", fragment).as_str());
@@ -85,7 +87,7 @@ mod tests {
     fn to_query_empty() {
         let params = Map::new();
         let expect = String::new();
-        let actual = to_query(params);
+        let actual = to_query(&params);
         assert_eq!(actual, expect);
     }
 
@@ -94,7 +96,7 @@ mod tests {
         let mut params = Map::new();
         params.insert(String::from("name"), Value::from("value"));
         let expect = String::from("?name=value");
-        let actual = to_query(params);
+        let actual = to_query(&params);
         assert_eq!(actual, expect);
     }
 
@@ -105,7 +107,7 @@ mod tests {
         params.insert(String::from("b"), Value::from("bravo"));
         params.insert(String::from("c"), Value::from("charlie"));
         let expect = String::from("?a=alpha&b=bravo&c=charlie");
-        let actual = to_query(params);
+        let actual = to_query(&params);
         assert_eq!(actual, expect);
     }
 
@@ -116,7 +118,7 @@ mod tests {
         let hostname = "host.name.com";
         let port = None;
         let path = None;
-        let mut params = Map::new();
+        let params = None;
         let fragment = None;
 
         let expect = String::from("https://host.name.com/");
@@ -129,10 +131,11 @@ mod tests {
         let scheme = "https";
         let credentials = Some(("username", "password"));
         let hostname = "host.name.com";
-        let port: Option<i64> = Some(8080);
+        let port: Option<u64> = Some(8080);
         let path = Some("/yellow/brick/road");
         let mut params = Map::new();
         params.insert(String::from("name"), Value::from("value"));
+        let params = Some(&params);
         let fragment = Some("/follow/the");
 
         let expect = String::from("https://username:password@host.name.com:8080/yellow/brick/road?name=value#/follow/the");
