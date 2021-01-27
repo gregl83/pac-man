@@ -13,6 +13,7 @@ homepage = "https://crates.io/crates/pac-man"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+regex = "1.4.3"
 futures = "0.3.12"
 lambda = { git = "https://github.com/awslabs/aws-lambda-rust-runtime", branch = "master" }
 log = "0.4.13"
@@ -27,3 +28,4 @@ hyper-tls = "0.4.3"
 http = "0.2.3"
 rusoto_core = "0.45.0"
 rusoto_s3 = "0.45.0"
+rusoto_secretsmanager = "0.45.0"

@@ -10,6 +10,7 @@ use futures::stream::StreamExt;
 use adapters::{
     http,
     s3,
+    secrets,
     to_uri
 };
 
@@ -28,7 +29,12 @@ async fn main() -> Result<(), Error> {
 }
 
 async fn func(event: Value, _: Context) -> Result<Value, Error> {
+    // fixme - region config (not destination)
+    let region = event["destination"]["region"].as_str().unwrap();
+    let mut secrets = secrets::Secrets::new(region);
+
     let uri = source_to_uri(&event["source"]);
+    let uri = secrets.fill(&uri).await;
     let (headers, body) = http::get_stream(&uri).await;
     let content_length: i64 = headers
         .get("content-length")
@@ -41,7 +47,6 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
     let region = event["destination"]["region"].as_str().unwrap();
     let collection = event["destination"]["collection"].as_str().unwrap();
     let name = event["destination"]["name"].as_str().unwrap();
-
     s3::put_object(
         region,
         collection,

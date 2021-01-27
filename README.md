@@ -24,14 +24,14 @@ Experimental
 
 ## Usage
 
-**Lambda Event**
+**Sample Lambda Event**
 
 ```json
 {
   "source": {
     "scheme": "https",
     "username": "pseudo",
-    "password": "w00t!",
+    "password": "{:secrets:pac-man:pw}",
     "hostname": "example.com",
     "port": 8080,
     "path": "/follow/the",
@@ -47,6 +47,23 @@ Experimental
   }
 }
 ```
+
+Uncomfortable with sensitive values in plaintext? Good, you should be!
+
+AWS Secrets Manager is supported using the following Lambda Event Value: `{:secrets:<name>:<key>}`.
+
+**Secrets Example**
+
+```json
+{
+  "source": {
+    ...,
+    "password": "{:secrets:name:key}",
+    ...
+  },
+  ...
+}
+``` 
 
 ## Testing
 

@@ -836,8 +836,10 @@ dependencies = [
  "hyper-tls",
  "lambda",
  "log",
+ "regex",
  "rusoto_core",
  "rusoto_s3",
+ "rusoto_secretsmanager",
  "serde",
  "serde_json",
  "simple-error",
@@ -1112,6 +1114,20 @@ dependencies = [
  "futures",
  "rusoto_core",
  "xml-rs",
+]
+
+[[package]]
+name = "rusoto_secretsmanager"
+version = "0.45.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f988559c6aca82d396f6eabc12a28874b5bf8005e137e04a9501838e3c381b52"
+dependencies = [
+ "async-trait",
+ "bytes 0.5.6",
+ "futures",
+ "rusoto_core",
+ "serde",
+ "serde_json",
 ]
 
 [[package]]

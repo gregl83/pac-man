@@ -1,5 +1,6 @@
 pub mod http;
 pub mod s3;
+pub mod secrets;
 
 use std::io;
 
