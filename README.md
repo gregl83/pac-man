@@ -31,7 +31,7 @@ Experimental
   "source": {
     "scheme": "https",
     "username": "pseudo",
-    "password": "woot!",
+    "password": "w00t!",
     "hostname": "example.com",
     "port": 8080,
     "path": "/follow/the",
