@@ -1,5 +1,5 @@
 mod adapters;
-mod modules;
+mod mods;
 
 use lambda::{handler_fn, Context};
 use log::{LevelFilter, error};
@@ -13,7 +13,7 @@ use adapters::{
     s3,
     to_uri
 };
-use modules::secrets::Secrets;
+use mods::secrets::Secrets;
 
 type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 
@@ -31,7 +31,7 @@ async fn main() -> Result<(), Error> {
 
 async fn func(event: Value, _: Context) -> Result<Value, Error> {
     // Bootstrap Modules
-    let region = event["modules"]["secrets"]["region"].as_str().unwrap();
+    let region = event["mods"]["secrets"]["region"].as_str().unwrap();
     let mut secrets = Secrets::new(region);
 
     // Get Stream from Source
@@ -40,6 +40,7 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
         for (header, values) in source_headers.as_object().unwrap() {
             for value in values.as_array().unwrap() {
                 let value = String::from(value.as_str().unwrap());
+                let value = secrets.fill(&value).await;
                 headers.push((header.clone(), value));
             }
         }

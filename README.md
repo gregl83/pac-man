@@ -30,7 +30,7 @@ Uncomfortable with sensitive values in plaintext?
 
 *Good, you should be!*
 
-AWS Secrets Manager is supported using the following expression format: `{:secrets:<name>:<key>}`.
+AWS Secrets Manager is supported, using a modifier, with the following value expression: `{:secrets:<name>:<key>}`.
 
 **Minima Lambda Event**
 
@@ -52,7 +52,7 @@ AWS Secrets Manager is supported using the following expression format: `{:secre
 
 ```json
 {
-  "modules": {
+  "mods": {
       "secrets": {
           "region": "us-east-1"      
       }
@@ -85,6 +85,26 @@ AWS Secrets Manager is supported using the following expression format: `{:secre
 **Optional Event Fields**
 
 `delta( minima.fields, maxima.fields )`
+
+### Modifiers
+
+Modifiers or `mods` implement functionality that modifies standard behavior.
+
+Mods are toggled within the `mods` body of a Lambda Event.
+
+#### Secrets
+
+**Configuration:**
+
+```json
+{
+  "region": "us-east-1"
+}
+```
+
+**Usage:**
+
+`{:secrets:<name>:<key>}` in field or header values.
 
 ## Testing
 
