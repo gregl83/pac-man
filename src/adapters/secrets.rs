@@ -73,24 +73,22 @@ impl Secrets {
 
     /// Get secret associated with given key
     async fn get(&mut self, n: Name, k: Key) -> Option<Secret> {
-        Some(String::from(""))
+        let cache_key = format!("{}:{}", &n, &k);
 
-        //let cache_key = format!("{}:{}", &n, &k);
+        if let Some(s) = self.cache.get_mut(cache_key.as_str()) { return s.clone(); }
 
-        // if let Some(s) = self.cache.get_mut(cache_key.as_str()) { return s.clone(); }
-        //
-        // if let Some(s) = self.fetch(&n).await {
-        //     let secret: Value = serde_json::from_str(s.as_str()).unwrap();
-        //     for (key, value) in secret.as_object().unwrap().iter() {
-        //         let cache_key = format!("{}:{}", &n, &key);
-        //         let value = Some(String::from(value.as_str().unwrap()));
-        //         self.cache.insert(cache_key, value);
-        //     }
-        //     return self.cache.get(format!("{}:{}", n, k).as_str()).unwrap().clone()
-        // }
-        //
-        // self.cache.insert(cache_key, None);
-        //None
+        if let Some(s) = self.fetch(&n).await {
+            let secret: Value = serde_json::from_str(s.as_str()).unwrap();
+            for (key, value) in secret.as_object().unwrap().iter() {
+                let cache_key = format!("{}:{}", &n, &key);
+                let value = Some(String::from(value.as_str().unwrap()));
+                self.cache.insert(cache_key, value);
+            }
+            return self.cache.get(format!("{}:{}", n, k).as_str()).unwrap().clone()
+        }
+
+        self.cache.insert(cache_key, None);
+        None
     }
 
     /// Fetch secret from AWS Secrets Manager

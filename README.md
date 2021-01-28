@@ -24,6 +24,12 @@ Experimental
 
 ## Usage
 
+AWS Lambda deployments can be triggered quite a bit of ways. Configuring an event to trigger your Lambda job will involve parameters respective to your API Source and target Destination.
+
+Uncomfortable with sensitive values in plaintext? Good, you should be!
+
+AWS Secrets Manager is supported using the following Lambda Event Value: `{:secrets:<name>:<key>}`.
+
 **Sample Lambda Event**
 
 ```json
@@ -47,20 +53,6 @@ Experimental
     "region": "us-east-1",
     "collection": "bucket-name",
     "name": "key"
-  }
-}
-```
-
-Uncomfortable with sensitive values in plaintext? Good, you should be!
-
-AWS Secrets Manager is supported using the following Lambda Event Value: `{:secrets:<name>:<key>}`.
-
-**Secrets Example**
-
-```json
-{
-  "source": {
-    "password": "{:secrets:name:key}"
   }
 }
 ``` 

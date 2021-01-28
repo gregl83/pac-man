@@ -10,7 +10,7 @@ use futures::stream::StreamExt;
 use adapters::{
     http,
     s3,
-    secrets,
+    secrets::Secrets,
     to_uri
 };
 
@@ -30,7 +30,7 @@ async fn main() -> Result<(), Error> {
 
 async fn func(event: Value, _: Context) -> Result<Value, Error> {
     let region = event["secrets"]["region"].as_str().unwrap();
-    let mut secrets = secrets::Secrets::new(region);
+    let mut secrets = Secrets::new(region);
 
     let uri = source_to_uri(&event["source"]);
     let uri = secrets.fill(&uri).await;
