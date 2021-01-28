@@ -30,12 +30,30 @@ Uncomfortable with sensitive values in plaintext? Good, you should be!
 
 AWS Secrets Manager is supported using the following Lambda Event Value format: `{:secrets:<name>:<key>}`.
 
-**Sample Lambda Event**
+**Minima Lambda Event**
 
 ```json
 {
-  "secrets": {
-    "region": "us-east-1"
+  "source": {
+    "scheme": "https",
+    "hostname": "example.com"
+  },
+  "destination": {
+    "region": "us-east-1",
+    "collection": "bucket-name",
+    "name": "key"
+  }
+}
+```
+
+**Maxima Lambda Event**
+
+```json
+{
+  "modules": {
+      "secrets": {
+          "region": "us-east-1"      
+      }
   },
   "source": {
     "scheme": "https",
@@ -65,7 +83,7 @@ Lambda functions can be executed with the help of [Docker](https://github.com/aw
 
 [docker-test.sh](/docker-test.sh) launches a Lambda build using Docker.
 
-**Required Environment Variables:**
+#### Environment Variables
 
 - AWS_SECRET_ACCESS_KEY
 - AWS_ACCESS_KEY_ID
