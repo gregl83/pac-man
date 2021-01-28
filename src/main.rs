@@ -29,8 +29,7 @@ async fn main() -> Result<(), Error> {
 }
 
 async fn func(event: Value, _: Context) -> Result<Value, Error> {
-    // fixme - region config (not destination)
-    let region = event["destination"]["region"].as_str().unwrap();
+    let region = event["secrets"]["region"].as_str().unwrap();
     let mut secrets = secrets::Secrets::new(region);
 
     let uri = source_to_uri(&event["source"]);

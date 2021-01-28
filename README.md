@@ -28,6 +28,9 @@ Experimental
 
 ```json
 {
+  "secrets": {
+    "region": "us-east-1"
+  },
   "source": {
     "scheme": "https",
     "username": "pseudo",
@@ -57,11 +60,8 @@ AWS Secrets Manager is supported using the following Lambda Event Value: `{:secr
 ```json
 {
   "source": {
-    ...,
-    "password": "{:secrets:name:key}",
-    ...
-  },
-  ...
+    "password": "{:secrets:name:key}"
+  }
 }
 ``` 
 
