@@ -63,7 +63,10 @@ Lambda functions can be executed with the help of [Docker](https://github.com/aw
 
 ### Docker Containers
 
-[docker-test.sh](/docker-test.sh) launches a Lambda build using Docker. Required env vars:
+[docker-test.sh](/docker-test.sh) launches a Lambda build using Docker.
+
+**Required Environment Variables:**
+
 - AWS_SECRET_ACCESS_KEY
 - AWS_ACCESS_KEY_ID
 
@@ -95,6 +98,10 @@ Lambda functions can be executed with the help of [Docker](https://github.com/aw
       -v /tmp/lambda:/var/task \
       lambci/lambda:provided
 ```
+
+## References
+
+- [W3 URI Specification](https://www.w3.org/Addressing/URL/uri-spec.html)
 
 ## License
 
