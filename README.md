@@ -28,7 +28,7 @@ AWS Lambda deployments can be triggered quite a bit of ways. Configuring an even
 
 Uncomfortable with sensitive values in plaintext? Good, you should be!
 
-AWS Secrets Manager is supported using the following Lambda Event Value: `{:secrets:<name>:<key>}`.
+AWS Secrets Manager is supported using the following Lambda Event Value format: `{:secrets:<name>:<key>}`.
 
 **Sample Lambda Event**
 
@@ -61,15 +61,14 @@ AWS Secrets Manager is supported using the following Lambda Event Value: `{:secr
 
 Lambda functions can be executed with the help of [Docker](https://github.com/awslabs/aws-lambda-rust-runtime#docker).
 
-**Convenience Executable**
+### Docker Containers
 
 [docker-test.sh](/docker-test.sh) launches a Lambda build using Docker. Required env vars:
 - AWS_SECRET_ACCESS_KEY
 - AWS_ACCESS_KEY_ID
 
-### Lambda Build & Run
+#### 1. Build Package
 
-**Build Lambda Package**
 ```bash
 ../pac-man$ docker run --rm \
       -v ${PWD}:/code \
@@ -78,14 +77,15 @@ Lambda functions can be executed with the help of [Docker](https://github.com/aw
       softprops/lambda-rust
 ```
 
-**Unzip Lambda Package**
+#### 2. Unzip Package
+
 ```bash
 ../pac-man$ unzip -o \
       target/lambda/release/pac-man.zip \
       -d /tmp/lambda
 ```
 
-**Run Unzipped Lambda Package**
+#### 3. Run Unzipped Package
 ```bash
 ../pac-man$ docker run \
       -i -e DOCKER_LAMBDA_USE_STDIN=1 \
@@ -95,11 +95,6 @@ Lambda functions can be executed with the help of [Docker](https://github.com/aw
       -v /tmp/lambda:/var/task \
       lambci/lambda:provided
 ```
-
-## Todos
-
-- API Headers (Auth etc)
-- Handle paginated APIs
 
 ## License
 
