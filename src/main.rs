@@ -1,4 +1,5 @@
 mod adapters;
+mod modules;
 
 use lambda::{handler_fn, Context};
 use log::{LevelFilter, error};
@@ -10,9 +11,9 @@ use futures::stream::StreamExt;
 use adapters::{
     http,
     s3,
-    secrets::Secrets,
     to_uri
 };
+use modules::secrets::Secrets;
 
 type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 
@@ -29,7 +30,7 @@ async fn main() -> Result<(), Error> {
 }
 
 async fn func(event: Value, _: Context) -> Result<Value, Error> {
-    let region = event["secrets"]["region"].as_str().unwrap();
+    let region = event["modules"]["secrets"]["region"].as_str().unwrap();
     let mut secrets = Secrets::new(region);
 
     let uri = source_to_uri(&event["source"]);

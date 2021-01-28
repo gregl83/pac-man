@@ -24,11 +24,13 @@ Experimental
 
 ## Usage
 
-AWS Lambda deployments can be triggered quite a bit of ways. Configuring an event to trigger your Lambda job will involve parameters respective to your API Source and target Destination.
+AWS Lambda deployments can be triggered in a variety of ways. Configuring events to trigger your Lambda functions involves parameters specific to each use-case.
 
-Uncomfortable with sensitive values in plaintext? Good, you should be!
+Uncomfortable with sensitive values in plaintext?
 
-AWS Secrets Manager is supported using the following Lambda Event Value format: `{:secrets:<name>:<key>}`.
+*Good, you should be!*
+
+AWS Secrets Manager is supported using the following expression format: `{:secrets:<name>:<key>}`.
 
 **Minima Lambda Event**
 
