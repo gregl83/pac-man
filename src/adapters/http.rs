@@ -16,11 +16,18 @@ use hyper_tls::HttpsConnector;
 
 use crate::adapters::BodyStream;
 
-pub async fn get_stream(uri: &str) -> (HeaderMap, BodyStream) {
+type Headers = Vec<(String, String)>;
+
+pub async fn get_stream(headers: &Headers, uri: &str) -> (HeaderMap, BodyStream) {
     let https = HttpsConnector::new();
     let client = Client::builder().build::<_, Body>(https);
 
-    let request = Request::get(uri).body(Body::empty()).unwrap();
+    let mut builder = Request::get(uri);
+    for (header, value) in headers {
+        builder = builder.header(header, value);
+    }
+    let request = builder.body(Body::empty()).unwrap();
+
     let response = client.request(request).await.unwrap();
 
     let headers = response.headers().clone();

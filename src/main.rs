@@ -30,12 +30,23 @@ async fn main() -> Result<(), Error> {
 }
 
 async fn func(event: Value, _: Context) -> Result<Value, Error> {
+    // Bootstrap Modules
     let region = event["modules"]["secrets"]["region"].as_str().unwrap();
     let mut secrets = Secrets::new(region);
 
+    // Get Stream from Source
+    let mut headers: Vec<(String, String)> = Vec::new();
+    if let Some(source_headers) = event["source"].get("headers") {
+        let source_headers = source_headers.as_array().unwrap();
+        for header in source_headers {
+            let header_name = String::from(header[0].as_str().unwrap());
+            let header_value = String::from(header[1].as_str().unwrap());
+            headers.push((header_name, header_value));
+        }
+    }
     let uri = source_to_uri(&event["source"]);
     let uri = secrets.fill(&uri).await;
-    let (headers, body) = http::get_stream(&uri).await;
+    let (headers, body) = http::get_stream(&headers, &uri).await;
     let content_length: i64 = headers
         .get("content-length")
         .unwrap()
@@ -44,6 +55,7 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
         .parse()
         .unwrap();
 
+    // Put Stream into Destination
     let region = event["destination"]["region"].as_str().unwrap();
     let collection = event["destination"]["collection"].as_str().unwrap();
     let name = event["destination"]["name"].as_str().unwrap();
