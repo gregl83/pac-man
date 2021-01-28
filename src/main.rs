@@ -37,11 +37,11 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
     // Get Stream from Source
     let mut headers: Vec<(String, String)> = Vec::new();
     if let Some(source_headers) = event["source"].get("headers") {
-        let source_headers = source_headers.as_array().unwrap();
-        for header in source_headers {
-            let header_name = String::from(header[0].as_str().unwrap());
-            let header_value = String::from(header[1].as_str().unwrap());
-            headers.push((header_name, header_value));
+        for (header, values) in source_headers.as_object().unwrap() {
+            for value in values.as_array().unwrap() {
+                let value = String::from(value.as_str().unwrap());
+                headers.push((header.clone(), value));
+            }
         }
     }
     let uri = source_to_uri(&event["source"]);

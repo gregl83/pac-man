@@ -58,9 +58,11 @@ AWS Secrets Manager is supported using the following expression format: `{:secre
       }
   },
   "source": {
-    "headers": [
-      ["Accepts", "text/json"]    
-    ],
+    "headers": {
+      "Accepts": [
+        "text/json"
+      ]
+    },
     "scheme": "https",
     "username": "pseudo",
     "password": "{:secrets:pac-man:pw}",
