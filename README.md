@@ -73,7 +73,11 @@ AWS Secrets Manager is supported using the following Lambda Event Value format: 
     "name": "key"
   }
 }
-``` 
+```
+
+**Optional Event Fields**
+
+`delta( minima.fields, maxima.fields )`
 
 ## Testing
 
