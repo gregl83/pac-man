@@ -2,10 +2,7 @@ use std::io::{
     Error,
     ErrorKind
 };
-use futures::stream::{
-    Stream,
-    TryStreamExt
-};
+use futures::stream::TryStreamExt;
 use http::Request;
 use hyper::{
     Client,

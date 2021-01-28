@@ -6,7 +6,6 @@ use log::{LevelFilter, error};
 use simple_logger::SimpleLogger;
 use simple_error::bail;
 use serde_json::Value;
-use futures::stream::StreamExt;
 
 use adapters::{
     http,
