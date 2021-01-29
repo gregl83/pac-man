@@ -12,7 +12,11 @@ use adapters::{
     s3,
     to_uri
 };
-use mods::secrets::Secrets;
+use mods::{
+    Modifier,
+    Modifiers,
+    secrets::Secrets,
+};
 
 type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 
@@ -31,7 +35,10 @@ async fn main() -> Result<(), Error> {
 async fn func(event: Value, _: Context) -> Result<Value, Error> {
     // Bootstrap Modules
     let region = event["mods"]["secrets"]["region"].as_str().unwrap();
-    let mut secrets = Secrets::new(region);
+    let mut modifiers: [Box<dyn Modifier<String> + Send>; 1] = [
+        Box::new(Secrets::new(region))
+    ];
+    let mut mods = Modifiers::<String>::new(Box::new(&mut modifiers));
 
     // Get Stream from Source
     let mut headers: Vec<(String, String)> = Vec::new();
@@ -39,13 +46,13 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
         for (header, values) in source_headers.as_object().unwrap() {
             for value in values.as_array().unwrap() {
                 let value = String::from(value.as_str().unwrap());
-                let value = secrets.fill(&value).await;
+                let value = mods.reduce(value).await;
                 headers.push((header.clone(), value));
             }
         }
     }
     let uri = source_to_uri(&event["source"]);
-    let uri = secrets.fill(&uri).await;
+    let uri = mods.reduce(uri).await;
     let (headers, body) = http::get_stream(&headers, &uri).await;
     let content_length: i64 = headers
         .get("content-length")

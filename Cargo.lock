@@ -883,6 +883,7 @@ dependencies = [
 name = "pac-man"
 version = "0.2.0"
 dependencies = [
+ "async-trait",
  "bytes 0.5.6",
  "futures",
  "http",

@@ -15,6 +15,7 @@ homepage = "https://crates.io/crates/pac-man"
 [dependencies]
 regex = "1.4.3"
 futures = "0.3.12"
+async-trait = "0.1.0"
 lambda = { git = "https://github.com/awslabs/aws-lambda-rust-runtime", rev = "04712a34d2cb7a6598dc0f4e8e727c1a20da8532" }
 log = "0.4.13"
 simple_logger = "1.11.0"
