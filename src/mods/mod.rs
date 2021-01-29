@@ -1,10 +1,15 @@
 pub mod secrets;
 
+/// Modifier is able to modify a target of type T
 #[async_trait::async_trait]
 pub trait Modifier<T> {
     async fn modify(&mut self, target: T) -> T;
 }
 
+/// Modifiers is a collection of structs that implement the Modifier trait
+///
+/// Calling `reduce` performs the equivalent of a fold() on modifiers returning
+/// the result of modifier.modify() on each fold
 pub struct Modifiers<'a, T> {
     mods: Box<&'a mut [Box<dyn Modifier<T> + Send>]>
 }
