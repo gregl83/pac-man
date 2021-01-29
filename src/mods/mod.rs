@@ -1,8 +1,6 @@
 pub mod secrets;
 
-use async_trait::async_trait;
-
-#[async_trait]
+#[async_trait:async_trait]
 pub trait Modifier<T> {
     async fn modify(&mut self, target: T) -> T;
 }
