@@ -94,7 +94,7 @@ Mods are toggled within the `mods` body of a Lambda Event.
 
 #### Secrets
 
-**Configuration:**
+##### Configuration
 
 ```json
 {
@@ -102,7 +102,7 @@ Mods are toggled within the `mods` body of a Lambda Event.
 }
 ```
 
-**Usage:**
+##### Usage
 
 `{:secrets:<name>:<key>}` in field or header values.
 
