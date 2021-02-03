@@ -39,16 +39,22 @@ impl Modifiers {
         for m in self.mods.iter_mut() {
             let mut modified = String::new();
 
-            let pattern = format!("\\{{:{}(:[^:^}}]+)*}}", m.key());
+            let pattern = format!("\\{{:{}.*}}", m.key());
             let re = Regex::new(&pattern).unwrap();
             let mut capture_matches = re.captures_iter(&res);
+
+            let mut next_capture = capture_matches.next();
+            if next_capture.is_none() { continue; }
 
             let mut capture_params = vec![];
             let mut capture_start = 0;
             let mut capture_end = 0;
             for (i, c) in target.chars().enumerate() {
                 if i == capture_end {
-                    if let Some(next_captures) = capture_matches.next() {
+                    if i > 0 {
+                        next_capture = capture_matches.next();
+                    }
+                    if let Some(next_captures) = &next_capture {
                         // collect modifier parameters
                         let captured_pattern = next_captures.get(0).unwrap().as_str();
                         let param_matches = Regex::new(r"([^:^{^}]+)").unwrap();
@@ -65,7 +71,7 @@ impl Modifiers {
                     }
                 }
 
-                if i == capture_start && !capture_params.is_empty() {
+                if i == capture_start {
                     if let Some(result) = block_on(m.modify(capture_params.clone())) {
                         modified.push_str(result.as_str());
                     }
@@ -126,6 +132,28 @@ mod tests {
     }
 
     #[tokio::test]
+    async fn modifiers_reduce_no_matches() {
+        struct ModifierMock {}
+        #[async_trait::async_trait]
+        impl Modifier for ModifierMock {
+            fn key(&self) -> &'static str { "modifier-mock" }
+            async fn modify(&mut self, params: Vec<&str>) -> Option<String> {
+                Some(format!("{} {}", params[0], params[1]))
+            }
+        }
+
+        let config: Mods = vec![Box::new(ModifierMock {})];
+        let mut mods = Modifiers::new(config);
+
+        let target = String::from("no matches in this string");
+
+        let expected = target.clone();
+        let actual = mods.reduce(target).await;
+
+        assert_eq!(actual, expected);
+    }
+
+    #[tokio::test]
     async fn modifiers_reduce_single_mod() {
         struct ModifierMock {}
         #[async_trait::async_trait]
@@ -142,6 +170,28 @@ mod tests {
         let target = String::from("{:modifier-mock:key:value}");
 
         let expected = String::from("key value");
+        let actual = mods.reduce(target).await;
+
+        assert_eq!(actual, expected);
+    }
+
+    #[tokio::test]
+    async fn modifiers_reduce_single_mod_sans_params() {
+        struct ModifierMock {}
+        #[async_trait::async_trait]
+        impl Modifier for ModifierMock {
+            fn key(&self) -> &'static str { "modifier-mock" }
+            async fn modify(&mut self, _: Vec<&str>) -> Option<String> {
+                Some(String::from("modified"))
+            }
+        }
+
+        let config: Mods = vec![Box::new(ModifierMock {})];
+        let mut mods = Modifiers::new(config);
+
+        let target = String::from("result: {:modifier-mock}");
+
+        let expected = String::from("result: modified");
         let actual = mods.reduce(target).await;
 
         assert_eq!(actual, expected);

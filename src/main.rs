@@ -61,11 +61,13 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
     // Put Stream into Destination
     let region = event["destination"]["region"].as_str().unwrap();
     let collection = event["destination"]["collection"].as_str().unwrap();
-    let name = event["destination"]["name"].as_str().unwrap();
+    let name = mods.reduce(
+        String::from(event["destination"]["name"].as_str().unwrap())
+    ).await;
     s3::put_object(
         region,
         collection,
-        name,
+        name.as_str(),
         content_length,
         body
     ).await;
