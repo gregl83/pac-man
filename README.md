@@ -98,10 +98,7 @@ Mods are toggled within the `mods` body of a Lambda Event.
 
 #### Uuid
 
-`{:uuid}`
-
-##### Configuration
-
+Usage: `{:uuid}`
 ```json
 {
   "name": "uuid"
@@ -110,10 +107,7 @@ Mods are toggled within the `mods` body of a Lambda Event.
 
 #### Secrets
 
-`{:secrets:<name>:<key>}`
-
-##### Configuration
-
+Usage: `{:secrets:<name>:<key>}`
 ```json
 {
   "name": "secrets",
