@@ -1,6 +1,5 @@
 use std::collections::HashMap;
 
-use regex::Regex;
 use serde_json::Value;
 
 use crate::adapters::secrets::get_secret;

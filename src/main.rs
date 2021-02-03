@@ -6,7 +6,6 @@ use log::{LevelFilter, error};
 use simple_logger::SimpleLogger;
 use simple_error::bail;
 use serde_json::Value;
-use uuid::Uuid;
 
 use adapters::{
     http,
@@ -62,11 +61,11 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
     // Put Stream into Destination
     let region = event["destination"]["region"].as_str().unwrap();
     let collection = event["destination"]["collection"].as_str().unwrap();
-    let name = to_unique_name(event["destination"]["name"].as_str().unwrap());
+    let name = event["destination"]["name"].as_str().unwrap();
     s3::put_object(
         region,
         collection,
-        name.as_str(),
+        name,
         content_length,
         body
     ).await;
@@ -107,9 +106,4 @@ fn source_to_uri(source: &Value) -> String {
     };
 
     to_uri(scheme, credentials, hostname, port, path, params, fragment)
-}
-
-fn to_unique_name(name: &str) -> String {
-    let uuid = Uuid::new_v4();
-    format!("{}-{}", name, uuid)
 }

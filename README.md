@@ -54,6 +54,9 @@ AWS Secrets Manager is supported, using a modifier, with the following value exp
 {
   "mods": [
     {
+      "name": "uuid"    
+    },
+    {
       "name": "secret",
       "region": "us-east-1"
     }
@@ -78,7 +81,7 @@ AWS Secrets Manager is supported, using a modifier, with the following value exp
   "destination": {
     "region": "us-east-1",
     "collection": "bucket-name",
-    "name": "key"
+    "name": "key-{:uuid}"
   }
 }
 ```
@@ -92,6 +95,20 @@ AWS Secrets Manager is supported, using a modifier, with the following value exp
 Modifiers or `mods` implement functionality that modifies standard behavior.
 
 Mods are toggled within the `mods` body of a Lambda Event.
+
+#### Uuid
+
+##### Configuration
+
+```json
+{
+  "name": "uuid"
+}
+```
+
+##### Usage
+
+`{:uuid}` in field or header values.
 
 #### Secrets
 

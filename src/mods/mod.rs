@@ -1,6 +1,5 @@
+mod uuid;
 mod secrets;
-
-use std::collections::HashMap;
 
 use regex::Regex;
 use futures::executor::block_on;
@@ -89,6 +88,7 @@ fn load(config: &Map<String, Value>) -> Box<dyn Modifier + Send> {
             let region = config.get("region").unwrap().as_str().unwrap();
             Box::new(secrets::Secrets::new(region))
         },
+        uuid::NAME => Box::new(uuid::Uuid::new()),
         _ => panic!(format!("modifier \"{}\" not found", name.as_str().unwrap()))
     }
 }
