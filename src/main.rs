@@ -13,11 +13,7 @@ use adapters::{
     s3,
     to_uri
 };
-use mods::{
-    Modifier,
-    Modifiers,
-    secrets::Secrets,
-};
+use mods::Modifiers;
 
 type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 
@@ -35,11 +31,7 @@ async fn main() -> Result<(), Error> {
 
 async fn func(event: Value, _: Context) -> Result<Value, Error> {
     // Bootstrap Modules
-    let region = event["mods"]["secrets"]["region"].as_str().unwrap();
-    let mut modifiers: [Box<dyn Modifier<String> + Send>; 1] = [
-        Box::new(Secrets::new(region))
-    ];
-    let mut mods = Modifiers::<String>::new(Box::new(&mut modifiers));
+    let mut mods = Modifiers::new(event["mods"].as_array());
 
     // Get Stream from Source
     let mut headers: Vec<(String, String)> = Vec::new();

@@ -54,7 +54,7 @@ impl Secrets {
 }
 
 #[async_trait::async_trait]
-impl Modifier<String> for Secrets {
+impl Modifier for Secrets {
     /// Modify secrets patterns in target string
     ///
     /// Replaces:  {:secrets:<key>}

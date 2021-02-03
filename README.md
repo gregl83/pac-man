@@ -52,11 +52,12 @@ AWS Secrets Manager is supported, using a modifier, with the following value exp
 
 ```json
 {
-  "mods": {
-      "secrets": {
-          "region": "us-east-1"      
-      }
-  },
+  "mods": [
+    {
+      "name": "secret",
+      "region": "us-east-1"
+    }
+  ],
   "source": {
     "headers": {
       "Accepts": [
@@ -98,6 +99,7 @@ Mods are toggled within the `mods` body of a Lambda Event.
 
 ```json
 {
+  "name": "secrets",
   "region": "us-east-1"
 }
 ```
