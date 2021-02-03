@@ -57,7 +57,7 @@ AWS Secrets Manager is supported, using a modifier, with the following value exp
       "name": "uuid"    
     },
     {
-      "name": "secret",
+      "name": "secrets",
       "region": "us-east-1"
     }
   ],
@@ -98,7 +98,7 @@ Mods are toggled within the `mods` body of a Lambda Event.
 
 #### Uuid
 
-Usage: `{:uuid}`
+`{:uuid}`
 ```json
 {
   "name": "uuid"
@@ -107,7 +107,7 @@ Usage: `{:uuid}`
 
 #### Secrets
 
-Usage: `{:secrets:<name>:<key>}`
+`{:secrets:<name>:<key>}`
 ```json
 {
   "name": "secrets",
