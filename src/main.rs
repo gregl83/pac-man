@@ -13,7 +13,10 @@ use adapters::{
     s3,
     to_uri
 };
-use mods::Modifiers;
+use mods::{
+    Modifiers,
+    to_mods
+};
 
 type Error = Box<dyn std::error::Error + Send + Sync + 'static>;
 
@@ -31,7 +34,8 @@ async fn main() -> Result<(), Error> {
 
 async fn func(event: Value, _: Context) -> Result<Value, Error> {
     // Bootstrap Modules
-    let mut mods = Modifiers::new(event["mods"].as_array());
+    let modifiers = to_mods(event["mods"].as_array());
+    let mut mods = Modifiers::new(modifiers);
 
     // Get Stream from Source
     let mut headers: Vec<(String, String)> = Vec::new();

@@ -1,20 +1,17 @@
 use std::collections::HashMap;
 
 use regex::Regex;
-use futures::executor::block_on;
 use serde_json::Value;
 
 use crate::adapters::secrets::get_secret;
 use crate::mods::Modifier;
 
-type Name = String;
-type Key = String;
-type Secret = String;
+pub const NAME: &str = "secrets";
 
 /// Secrets connects to AWS Secrets Manager
 pub struct Secrets {
     region: String,
-    cache: HashMap<String, Option<Secret>>
+    cache: HashMap<String, Option<String>>
 }
 
 impl Secrets {
@@ -28,12 +25,12 @@ impl Secrets {
     /// Get secret by name and key
     ///
     /// Uses cache or async service call
-    async fn get(&mut self, n: Name, k: Key) -> Option<Secret> {
-        let cache_key = format!("{}:{}", &n, &k);
+    async fn get(&mut self, n: &str, k: &str) -> Option<String> {
+        let cache_key = format!("{}:{}", n, k);
 
         if let Some(s) = self.cache.get_mut(cache_key.as_str()) { return s.clone(); }
 
-        if let Some(s) = self.fetch(n.clone()).await {
+        if let Some(s) = self.fetch(String::from(n)).await {
             let secret: Value = serde_json::from_str(s.as_str()).unwrap();
             for (key, value) in secret.as_object().unwrap().iter() {
                 let cache_key = format!("{}:{}", &n, &key);
@@ -48,51 +45,21 @@ impl Secrets {
     }
 
     /// Fetch secret using secrets adapter
-    async fn fetch(&self, n: Name) -> Option<String> {
+    async fn fetch(&self, n: String) -> Option<String> {
         get_secret(self.region.clone(), n, None, None).await
     }
 }
 
 #[async_trait::async_trait]
 impl Modifier for Secrets {
+    fn key(&self) -> &'static str { NAME }
+
     /// Modify secrets patterns in target string
     ///
     /// Replaces:  {:secrets:<key>}
     /// With:      <value-for-key>
-    async fn modify(&mut self, target: String) -> String {
-        let mut res = String::new();
-
-        let re = Regex::new(r"\{:secrets:([^:]+):([^}]+)}").unwrap();
-        let mut capture_matches = re.captures_iter(&target);
-
-        let mut capture_name = "";
-        let mut capture_key = "";
-        let mut capture_start = 0;
-        let mut capture_end = 0;
-        for (i, c) in target.chars().enumerate() {
-            if i == capture_end {
-                if let Some(next_captures) = capture_matches.next() {
-                    capture_name = next_captures.get(1).unwrap().as_str();
-                    capture_key = next_captures.get(2).unwrap().as_str();
-                    let captures_match = next_captures.get(0).unwrap().range();
-                    capture_start = captures_match.start;
-                    capture_end = captures_match.end;
-                }
-            }
-
-            if i == capture_start && !capture_name.is_empty() && !capture_key.is_empty() {
-                let name = capture_name.to_string();
-                let key = capture_key.to_string();
-                if let Some(secret) = block_on(self.get(name, key)) {
-                    res.push_str(secret.as_str());
-                }
-                continue;
-            }
-
-            if i < capture_start || i >= capture_end { res.push(c); }
-        }
-
-        res
+    async fn modify(&mut self, params: Vec<&str>) -> Option<String> {
+        self.get(params[0], params[1]).await
     }
 }
 
