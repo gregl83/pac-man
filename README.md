@@ -54,11 +54,18 @@ AWS Secrets Manager is supported, using a modifier, with the following value exp
 {
   "mods": [
     {
-      "name": "uuid"    
+      "name": "chunks",
+      "index": 0,
+      "chunk": {
+        "length": 10 
+      }
     },
     {
       "name": "secrets",
       "region": "us-east-1"
+    },
+    {
+      "name": "uuid"    
     }
   ],
   "source": {
@@ -96,12 +103,19 @@ Modifiers or `mods` implement functionality that modifies standard behavior.
 
 Mods are toggled within the `mods` body of a Lambda Event.
 
-#### Uuid
+#### Chunks
 
-`{:uuid}`
+`{:chunks:chunk:start}`
+`{:chunks:chunk:end}`
+`{:chunks:chunk:index}`
 ```json
 {
-  "name": "uuid"
+  "name": "chunks",
+  "start": 0,
+  "end": 100,
+  "chunk": {
+    "length": 10 
+  }
 }
 ```
 
@@ -112,6 +126,15 @@ Mods are toggled within the `mods` body of a Lambda Event.
 {
   "name": "secrets",
   "region": "us-east-1"
+}
+```
+
+#### Uuid
+
+`{:uuid}`
+```json
+{
+  "name": "uuid"
 }
 ```
 
