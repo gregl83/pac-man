@@ -81,7 +81,8 @@ AWS Secrets Manager is supported, using a modifier, with the following value exp
     "port": 8080,
     "path": "/follow/the",
     "params": {
-      "name": "value"    
+      "from": "{:chunks:chunk:start}",
+      "to": "{:chunks:chunk:end}"    
     },
     "fragment": "/yellow/brick/road"
   },
