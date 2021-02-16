@@ -55,10 +55,12 @@ AWS Secrets Manager is supported, using a modifier, with the following value exp
   "mods": [
     {
       "name": "chunks",
-      "index": 0,
+      "start": 0,
+      "end": 100,
       "chunk": {
-        "length": 10 
-      }
+        "length": 10      
+      },
+      "bytes": 100
     },
     {
       "name": "secrets",
@@ -115,10 +117,13 @@ Mods are toggled within the `mods` body of a Lambda Event.
   "start": 0,
   "end": 100,
   "chunk": {
-    "length": 10 
-  }
+    "length": 10      
+  },
+  "bytes": 100
 }
 ```
+
+`bytes` is a special configuration that denotes the minimum Content-Length header required to continue. It can be used to decide when a last page has been reached.
 
 #### Secrets
 

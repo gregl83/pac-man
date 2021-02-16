@@ -15,7 +15,10 @@ type Mods = Vec<Box<dyn Modifier + Send>>;
 #[async_trait::async_trait]
 pub trait Modifier {
     fn key(&self) -> &'static str;
+
     async fn modify(&mut self, params: Vec<&str>) -> Option<String>;
+
+    fn advance(&mut self) { }
 }
 
 /// Modifiers is a collection of structs that implement the Modifier trait
@@ -86,11 +89,22 @@ impl Modifiers {
         }
         res
     }
+
+    pub fn advance(&mut self) {
+        for m in self.mods.iter_mut() { m.advance(); }
+    }
 }
 
 fn load(config: &Map<String, Value>) -> Box<dyn Modifier + Send> {
     let name = config.get("name").unwrap();
     match name.as_str().unwrap() {
+        chunks::NAME => {
+            let index = config.get("index").unwrap().as_u64().unwrap();
+            let chunk_length = config.get("chunk").unwrap().as_u64().unwrap();
+
+
+            Box::new(chunks::Chunks::new(index, chunk_length))
+        },
         secrets::NAME => {
             let region = config.get("region").unwrap().as_str().unwrap();
             Box::new(secrets::Secrets::new(region))

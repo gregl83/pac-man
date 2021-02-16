@@ -33,44 +33,61 @@ async fn main() -> Result<(), Error> {
 
 async fn func(event: Value, _: Context) -> Result<Value, Error> {
     // Bootstrap Modules
-    let modifiers = to_mods(event["mods"].as_array());
+    let mods_config = event["mods"].as_array();
+    let mut bytes: i64 = 0;
+    let chunking = mods_config.iter().any(|&m| {
+        if m.get("name").unwrap() == "chunks" {
+            bytes = m.get("bytes").unwrap().parse() as i64;
+            return true;
+        }
+        false
+    });
+    let modifiers = to_mods(mods_config);
     let mut mods = Modifiers::new(modifiers);
 
-    // Get Stream from Source
-    let mut headers: Vec<(String, String)> = Vec::new();
-    if let Some(source_headers) = event["source"].get("headers") {
-        for (header, values) in source_headers.as_object().unwrap() {
-            for value in values.as_array().unwrap() {
-                let value = String::from(value.as_str().unwrap());
-                let value = mods.reduce(value).await;
-                headers.push((header.clone(), value));
+    loop {
+        // Get Stream from Source
+        let mut headers: Vec<(String, String)> = Vec::new();
+        if let Some(source_headers) = event["source"].get("headers") {
+            for (header, values) in source_headers.as_object().unwrap() {
+                for value in values.as_array().unwrap() {
+                    let value = String::from(value.as_str().unwrap());
+                    let value = mods.reduce(value).await;
+                    headers.push((header.clone(), value));
+                }
             }
         }
-    }
-    let uri = source_to_uri(&event["source"]);
-    let uri = mods.reduce(uri).await;
-    let (headers, body) = http::get_stream(&headers, &uri).await;
-    let content_length: i64 = headers
-        .get("content-length")
-        .unwrap()
-        .to_str()
-        .unwrap()
-        .parse()
-        .unwrap();
+        let uri = source_to_uri(&event["source"]);
+        let uri = mods.reduce(uri).await;
+        let (headers, body) = http::get_stream(&headers, &uri).await;
+        let content_length: i64 = headers
+            .get("content-length")
+            .unwrap()
+            .to_str()
+            .unwrap()
+            .parse()
+            .unwrap();
+        if content_length < bytes { break; }
 
-    // Put Stream into Destination
-    let region = event["destination"]["region"].as_str().unwrap();
-    let collection = event["destination"]["collection"].as_str().unwrap();
-    let name = mods.reduce(
-        String::from(event["destination"]["name"].as_str().unwrap())
-    ).await;
-    s3::put_object(
-        region,
-        collection,
-        name.as_str(),
-        content_length,
-        body
-    ).await;
+        // Put Stream into Destination
+        let region = event["destination"]["region"].as_str().unwrap();
+        let collection = event["destination"]["collection"].as_str().unwrap();
+        let name = mods.reduce(
+            String::from(event["destination"]["name"].as_str().unwrap())
+        ).await;
+        s3::put_object(
+            region,
+            collection,
+            name.as_str(),
+            content_length,
+            body
+        ).await;
+
+        if !chunking { break; }
+
+        // Advance modifiers in event that they track chunks (requests)
+        mods.advance();
+    }
 
     Ok(event)
 }
