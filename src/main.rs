@@ -34,16 +34,16 @@ async fn main() -> Result<(), Error> {
 async fn func(event: Value, _: Context) -> Result<Value, Error> {
     // Bootstrap Modules
     let mods_config = event["mods"].as_array();
-    let mut bytes: i64 = 0;
-    let chunking = mods_config.iter().any(|&m| {
-        if m.get("name").unwrap() == "chunks" {
-            bytes = m.get("bytes").unwrap().parse() as i64;
-            return true;
-        }
-        false
-    });
     let modifiers = to_mods(mods_config);
     let mut mods = Modifiers::new(modifiers);
+
+    // Get chunks modifier bytes (if active)
+    let mut chunking = false;
+    let mut bytes: i64 = 0;
+    if let Some(chunks) = mods.find("chunks") {
+        chunking = true;
+        bytes = chunks.option("bytes").unwrap().parse::<i64>().unwrap();
+    }
 
     loop {
         // Get Stream from Source

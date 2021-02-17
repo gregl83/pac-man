@@ -9,12 +9,15 @@ use serde_json::{
     Value,
 };
 
-type Mods = Vec<Box<dyn Modifier + Send>>;
+type Mod = Box<dyn Modifier + Send>;
+type Mods = Vec<Mod>;
 
 /// Modifier is able to modify a target of type T
 #[async_trait::async_trait]
 pub trait Modifier {
     fn key(&self) -> &'static str;
+
+    fn option(&self, _: &str) -> Option<String> { None }
 
     async fn modify(&mut self, params: Vec<&str>) -> Option<String>;
 
@@ -34,30 +37,40 @@ impl Modifiers {
         Modifiers { mods }
     }
 
+    pub fn find(&self, key: &str) -> Option<&Mod> {
+        self.mods.iter().find(|m| { key == m.key() })
+    }
+
     pub async fn reduce(&mut self, target: String) -> String {
-        if self.mods.is_empty() {
-            return target;
-        }
+        if self.mods.is_empty() { return target; }
 
         let mut res = target.clone();
+        // iterate over modifiers applying modify on res (clone of target string)
         for m in self.mods.iter_mut() {
             let mut modified = String::new();
 
-            let pattern = format!("\\{{:{}.*}}", m.key());
+            // find modifier matches {:name:key:sub-key}
+            let pattern = format!("\\{{:{}[^}}]*}}", m.key());
             let re = Regex::new(&pattern).unwrap();
             let mut capture_matches = re.captures_iter(&res);
 
+            // get first capture; if empty continue or try next modifier
             let mut next_capture = capture_matches.next();
             if next_capture.is_none() { continue; }
 
+            // set capture start and end char position tracking
             let mut capture_params = vec![];
             let mut capture_start = 0;
             let mut capture_end = 0;
-            for (i, c) in target.chars().enumerate() {
+
+            // iterate over target characters
+            for (i, c) in res.chars().enumerate() {
+                // check if current character position is end of a capture position (get next capture)
                 if i == capture_end {
-                    if i > 0 {
-                        next_capture = capture_matches.next();
-                    }
+                    // after first pass, next_capture is refreshed
+                    if i > 0 { next_capture = capture_matches.next(); }
+
+                    // if next capture has value, collect capture params
                     if let Some(next_captures) = &next_capture {
                         // collect modifier parameters
                         let captured_pattern = next_captures.get(0).unwrap().as_str();
@@ -68,13 +81,14 @@ impl Modifiers {
                         }
                         capture_params = params;
 
-                        // get capture boundaries (start, end)
+                        // update capture boundaries (start and end positions)
                         let captures_match = next_captures.get(0).unwrap().range();
                         capture_start = captures_match.start;
                         capture_end = captures_match.end;
                     }
                 }
 
+                // check if current character position is start of a capture position (modify + push)
                 if i == capture_start {
                     if let Some(result) = block_on(m.modify(capture_params.clone())) {
                         modified.push_str(result.as_str());
@@ -82,6 +96,7 @@ impl Modifiers {
                     continue;
                 }
 
+                // if not inside capture boundary (start and end position) push character
                 if i < capture_start || i >= capture_end { modified.push(c); }
             }
 
@@ -99,11 +114,20 @@ fn load(config: &Map<String, Value>) -> Box<dyn Modifier + Send> {
     let name = config.get("name").unwrap();
     match name.as_str().unwrap() {
         chunks::NAME => {
-            let index = config.get("index").unwrap().as_u64().unwrap();
-            let chunk_length = config.get("chunk").unwrap().as_u64().unwrap();
-
-
-            Box::new(chunks::Chunks::new(index, chunk_length))
+            let start = config.get("start").unwrap().as_u64().unwrap();
+            let chunk_length = config
+                .get("chunk")
+                .unwrap()
+                .get("length")
+                .unwrap()
+                .as_u64()
+                .unwrap();
+            let end = match config.get("end") {
+                Some(end) => end.as_u64(),
+                _ => None
+            };
+            let bytes = format!("{}", config.get("bytes").unwrap());
+            Box::new(chunks::Chunks::new(start, chunk_length, end, bytes.as_str()))
         },
         secrets::NAME => {
             let region = config.get("region").unwrap().as_str().unwrap();
@@ -207,6 +231,28 @@ mod tests {
         let target = String::from("result: {:modifier-mock}");
 
         let expected = String::from("result: modified");
+        let actual = mods.reduce(target).await;
+
+        assert_eq!(actual, expected);
+    }
+
+    #[tokio::test]
+    async fn modifiers_reduce_single_mod_multimatch() {
+        struct ModifierMock {}
+        #[async_trait::async_trait]
+        impl Modifier for ModifierMock {
+            fn key(&self) -> &'static str { "modifier-mock" }
+            async fn modify(&mut self, params: Vec<&str>) -> Option<String> {
+                Some(format!("{}|{}", params[0], params[1]))
+            }
+        }
+
+        let config: Mods = vec![Box::new(ModifierMock {})];
+        let mut mods = Modifiers::new(config);
+
+        let target = String::from("?a={:modifier-mock:key:alpha}&b={:modifier-mock:key:bravo}");
+
+        let expected = String::from("?a=key|alpha&b=key|bravo");
         let actual = mods.reduce(target).await;
 
         assert_eq!(actual, expected);

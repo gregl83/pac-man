@@ -4,15 +4,16 @@ pub const NAME: &str = "chunks";
 
 /// Chunks API responses by providing iterator variables
 pub struct Chunks {
-    start: usize,
-    chunk_length: usize,
-    end: Option<usize>,
-    chunk_start: usize,
-    chunk_end: usize
+    start: u64,
+    chunk_length: u64,
+    end: Option<u64>,
+    chunk_start: u64,
+    chunk_end: u64,
+    bytes: String
 }
 
 impl Chunks {
-    pub fn new(start: usize, chunk_length: usize, end: Option<usize>) -> Self {
+    pub fn new(start: u64, chunk_length: u64, end: Option<u64>, bytes: &str) -> Self {
         let chunk_end = match end {
             Some(end) => {
                 let mut chunk_end = start + chunk_length;
@@ -27,7 +28,8 @@ impl Chunks {
             chunk_length,
             end,
             chunk_start: start,
-            chunk_end
+            chunk_end,
+            bytes: String::from(bytes)
         }
     }
 }
@@ -35,6 +37,13 @@ impl Chunks {
 #[async_trait::async_trait]
 impl Modifier for Chunks {
     fn key(&self) -> &'static str { NAME }
+
+    fn option(&self, key: &str) -> Option<String> {
+        match key {
+            "bytes" => Some(self.bytes.clone()),
+            _ => None
+        }
+    }
 
     async fn modify(&mut self, params: Vec<&str>) -> Option<String> {
         if params[0].eq("chunk") {
