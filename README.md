@@ -138,7 +138,7 @@ Mods are toggled within the `mods` body of a Lambda Event.
 #### Uuid
 
 `{:uuid}`
-`{:uuid:key}`
+`{:uuid:<key>}`
 ```json
 {
   "name": "uuid"
