@@ -15,6 +15,9 @@ Use this generic Lambda service to consume APIs and persist response data in S3.
 - [Usage](#usage)
   - [Lambda Event](#lambda-event)
   - [Modifiers](#modifiers)
+    - [Chunks](#chunks)
+    - [Secrets](#secrets)
+    - [Uuid](#uuid)
 - [Testing](#testing)
 - [References](#references)
 
