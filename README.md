@@ -138,11 +138,14 @@ Mods are toggled within the `mods` body of a Lambda Event.
 #### Uuid
 
 `{:uuid}`
+`{:uuid:key}`
 ```json
 {
   "name": "uuid"
 }
 ```
+
+Using a key with the `uuid` modifier allows reference to the same `uuid` using a HashMap cache for a given run.
 
 ## Testing
 
