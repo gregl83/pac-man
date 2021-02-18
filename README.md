@@ -39,7 +39,13 @@ Uncomfortable with sensitive values in plaintext?
 
 *Good, you should be!*
 
-AWS Secrets Manager is supported, using a modifier, with the following value expression: `{:secrets:<name>:<key>}`.
+AWS Secrets Manager is supported, using a modifier, with the following value expression: `{:secrets:<name>:<key>}` (see Modifiers).
+
+**Caution**
+
+Lambda functions are naturally `ephemeral` or `stateless`. By design, pac-man expects to be executed as a single-use `serverless` function. Some modifiers maintain a cache in the event they are utilized more than once for a given request. Using pac-man in `stateful` applications can have unexpected consequences.
+
+### Lambda Event
 
 **Minima Lambda Event**
 
@@ -111,9 +117,9 @@ AWS Secrets Manager is supported, using a modifier, with the following value exp
 
 ### Modifiers
 
-Modifiers or `mods` implement functionality that modifies standard behavior.
+Modifiers or `mods` implement functionality that modifies placeholders in pac-man event fields.
 
-Mods are toggled within the `mods` body of a Lambda Event.
+By default, `mods` aren't active and must be toggled respectively within the `mods` configuration body of the Lambda Event.
 
 #### Chunks
 
@@ -169,7 +175,9 @@ Lambda functions can be executed with the help of [Docker](https://github.com/aw
 - AWS_SECRET_ACCESS_KEY
 - AWS_ACCESS_KEY_ID
 
-#### 1. Build Package
+#### Build and Run
+
+1. Build Package
 
 ```bash
 ../pac-man$ docker run --rm \
@@ -179,7 +187,7 @@ Lambda functions can be executed with the help of [Docker](https://github.com/aw
       softprops/lambda-rust
 ```
 
-#### 2. Unzip Package
+2. Unzip Package
 
 ```bash
 ../pac-man$ unzip -o \
@@ -187,7 +195,7 @@ Lambda functions can be executed with the help of [Docker](https://github.com/aw
       -d /tmp/lambda
 ```
 
-#### 3. Run Unzipped Package
+3. Run Unzipped Package
 ```bash
 ../pac-man$ docker run \
       -i -e DOCKER_LAMBDA_USE_STDIN=1 \
