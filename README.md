@@ -209,6 +209,7 @@ Lambda functions can be executed with the help of [Docker](https://github.com/aw
 ## References
 
 - [W3 URI Specification](https://www.w3.org/Addressing/URL/uri-spec.html)
+- [AWS Glue](https://aws.amazon.com/glue/)
 
 ## License
 
