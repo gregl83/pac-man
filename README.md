@@ -2,7 +2,7 @@
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/gregl83/pac-man/blob/master/LICENSE)
 [![Build Status](https://github.com/gregl83/pac-man/workflows/CI/badge.svg?branch=main)](https://github.com/gregl83/pac-man/actions?query=workflow%3ACI+branch%3Amain)
 
-<img src="/assets/pac-man.png" align="center" />
+![pac-man](assets/pac-man.png)
 
 # pac-man
 
@@ -16,7 +16,7 @@ Experimental
 
 ## Architecture
 
-![pac-man-components](assets/pac-man-components.png)
+<p align="center"><img src="/assets/pac-man-components.png" /></p>
 
 ## Service Dependencies
 
