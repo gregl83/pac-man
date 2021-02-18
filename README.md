@@ -3,24 +3,32 @@
 [![Build Status](https://github.com/gregl83/pac-man/workflows/CI/badge.svg?branch=main)](https://github.com/gregl83/pac-man/actions?query=workflow%3ACI+branch%3Amain)
 # pac-man
 
-AWS Lambda streaming API consumer
+![pac-man](assets/pac-man.png)
+
+AWS Lambda streaming API consumer.
+
+Use this generic Lambda service to consume APIs and persist response data in S3. Once the data is in S3, it can be consumed by any number of AWS cloud services.
 
 ## Stability
 
 Experimental
 
+## Architecture
+
+![pac-man-components](assets/pac-man-components.png)
+
 ## Service Dependencies
 
 **Required**
 
-- [AWS Lambda](https://aws.amazon.com/lambda/)
-- [AWS S3](https://aws.amazon.com/s3/)
+- [AWS Lambda](https://aws.amazon.com/lambda/) as executor of pac-man tasks.
+- [AWS S3](https://aws.amazon.com/s3/) as Destination for data.
 
 **Optional**
 
-- [GitHub Actions CI/CD](https://github.com/features/actions)
-- [AWS Secrets Manager](https://aws.amazon.com/secrets-managser/)
-- [AWS EventBridge](https://aws.amazon.com/eventbridge/)
+- [GitHub Actions CI/CD](https://github.com/features/actions) to deploy pac-man.
+- [AWS Secrets Manager](https://aws.amazon.com/secrets-managser/) for sensitive request or persistence parameters.
+- [AWS EventBridge](https://aws.amazon.com/eventbridge/) to trigger pac-man runs.
 
 ## Usage
 
