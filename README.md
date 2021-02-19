@@ -6,7 +6,7 @@
 
 # pac-man
 
-AWS Lambda streaming API consumer.
+AWS Lambda URI consumer.
 
 Use this generic Lambda service to consume APIs and persist response data in S3. Once the data is in S3, it can be consumed by any number of AWS cloud services.
 
