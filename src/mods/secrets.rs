@@ -1,23 +1,34 @@
 use std::collections::HashMap;
+use std::future::Future;
 
 use serde_json::Value;
+use futures::executor::block_on;
 
-use crate::adapters::secrets::get_secret;
 use crate::mods::Modifier;
 
 pub const NAME: &str = "secrets";
 
 /// Secrets connects to AWS Secrets Manager
-pub struct Secrets {
+pub struct Secrets<F, Fut>
+where
+    F: Fn(String, String, Option<String>, Option<String>) -> Fut + Send,
+    Fut: Future<Output = Option<String>>
+{
     region: String,
-    cache: HashMap<String, Option<String>>
+    cache: HashMap<String, Option<String>>,
+    fetcher: F
 }
 
-impl Secrets {
-    pub fn new(region: &str) -> Self {
+impl<F, Fut> Secrets<F, Fut>
+where
+    F: Fn(String, String, Option<String>, Option<String>) -> Fut + Send,
+    Fut: Future<Output = Option<String>>
+{
+    pub fn new(region: &str, fetcher: F) -> Self {
         Secrets {
             region: String::from(region),
-            cache: HashMap::new()
+            cache: HashMap::new(),
+            fetcher
         }
     }
 
@@ -29,7 +40,7 @@ impl Secrets {
 
         if let Some(s) = self.cache.get_mut(cache_key.as_str()) { return s.clone(); }
 
-        if let Some(s) = self.fetch(String::from(n)).await {
+        if let Some(s) = block_on(self.fetch(String::from(n))) {
             let secret: Value = serde_json::from_str(s.as_str()).unwrap();
             for (key, value) in secret.as_object().unwrap().iter() {
                 let cache_key = format!("{}:{}", &n, &key);
@@ -45,12 +56,16 @@ impl Secrets {
 
     /// Fetch secret using secrets adapter
     async fn fetch(&self, n: String) -> Option<String> {
-        get_secret(self.region.clone(), n, None, None).await
+        (self.fetcher)(self.region.clone(), n, None, None).await
     }
 }
 
 #[async_trait::async_trait]
-impl Modifier for Secrets {
+impl<F, Fut> Modifier for Secrets<F, Fut>
+where
+    F: Fn(String, String, Option<String>, Option<String>) -> Fut + Send,
+    Fut: Future<Output = Option<String>>
+{
     fn key(&self) -> &'static str { NAME }
 
     /// Modify secrets patterns in target string
@@ -62,38 +77,41 @@ impl Modifier for Secrets {
     }
 }
 
-// todo - add tests back (removed due to trait async support w/mocks) --
-// #[cfg(test)]
-// mod tests {
-//     use super::*;
-//     #[test]
-//     fn secrets_get_uncached() {
-//         let key = String::from("key");
-//         let expects = None;
-//
-//         let mut secrets_manager = Box::new(MockSecretsManagerClient::new());
-//         let mut secrets = Secrets::new(secrets_manager);
-//         let actual = secrets.get(&key);
-//
-//         assert_eq!(actual, expects);
-//     }
-//
-//     #[test]
-//     fn secrets_miss_returns_none() {
-//         let key = String::from("key");
-//         let expects = None;
-//
-//         let mut secrets_manager = Box::new(MockSecretsManagerClient::new());
-//         let mut secrets = Secrets::new(secrets_manager);
-//         let actual = secrets.get(&key);
-//
-//         assert_eq!(actual, expects);
-//     }
-//
-//     #[test]
-//     async fn secrets_miss_cached() {
-//         let mut secrets_manager = Box::new(MockSecretsManagerClient::new());
-//         let mut secrets = Secrets::new(secrets_manager);
-//         // todo - assert fetch is NOT called
-//     }
-// }
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn secrets_get_uncached() {
+        let n = String::from("namespace");
+        let k = String::from("key");
+        let expects = Some(String::from("value"));
+
+        async fn fetcher(_: String, _: String, _: Option<String>, _: Option<String>) -> Option<String> {
+            Some(String::from("{\"key\":\"value\"}"))
+        };
+
+        let mut secrets = Secrets::new("us-east-1", fetcher);
+
+        let actual = secrets.get(&n, &k).await;
+
+        assert_eq!(actual, expects);
+    }
+
+    #[tokio::test]
+    async fn secrets_miss_returns_none() {
+        let n = String::from("namespace");
+        let k = String::from("key");
+        let expects = None;
+
+        async fn fetcher(_: String, _: String, _: Option<String>, _: Option<String>) -> Option<String> {
+            None
+        };
+
+        let mut secrets = Secrets::new("us-east-1", fetcher);
+
+        let actual = secrets.get(&n, &k).await;
+
+        assert_eq!(actual, expects);
+    }
+}

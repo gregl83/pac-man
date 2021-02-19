@@ -9,6 +9,8 @@ use serde_json::{
     Value,
 };
 
+use crate::adapters::secrets::get_secret;
+
 type Mod = Box<dyn Modifier + Send>;
 type Mods = Vec<Mod>;
 
@@ -131,7 +133,7 @@ fn load(config: &Map<String, Value>) -> Box<dyn Modifier + Send> {
         },
         secrets::NAME => {
             let region = config.get("region").unwrap().as_str().unwrap();
-            Box::new(secrets::Secrets::new(region))
+            Box::new(secrets::Secrets::new(region, get_secret))
         },
         uuid::NAME => Box::new(uuid::Uuid::new()),
         _ => panic!(format!("modifier \"{}\" not found", name.as_str().unwrap()))
