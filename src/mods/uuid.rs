@@ -34,3 +34,38 @@ impl Modifier for Uuid {
         Some(uuid::Uuid::new_v4().to_string())
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    use regex::Regex;
+
+    const UUID_V4_PATTERN: &str = "^[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12}$";
+
+    #[tokio::test]
+    async fn uuid_modify_sans_key() {
+        let params = vec![];
+
+        let mut uuid = Uuid::new();
+        let actual = uuid.modify(params).await;
+
+        let uuid_v4 = Regex::new(UUID_V4_PATTERN).unwrap();
+
+        assert!(uuid_v4.is_match(actual.unwrap().as_str()));
+    }
+
+    #[tokio::test]
+    async fn uuid_modify_with_key() {
+        let params = vec!["key"];
+
+        let mut uuid = Uuid::new();
+        let actual_first = uuid.modify(params.clone()).await;
+        let actual_second = uuid.modify(params.clone()).await;
+
+        let uuid_v4 = Regex::new(UUID_V4_PATTERN).unwrap();
+
+        assert!(uuid_v4.is_match(actual_first.clone().unwrap().as_str()));
+        assert_eq!(actual_first, actual_second);
+    }
+}
