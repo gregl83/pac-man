@@ -85,6 +85,7 @@ mod tests {
     async fn secrets_get_uncached() {
         let n = String::from("namespace");
         let k = String::from("key");
+        let cache_key = format!("{}:{}", &n, &k);
         let expects = Some(String::from("value"));
 
         async fn fetcher(_: String, _: String, _: Option<String>, _: Option<String>) -> Option<String> {
@@ -96,10 +97,31 @@ mod tests {
         let actual = secrets.get(&n, &k).await;
 
         assert_eq!(actual, expects);
+        // verify cached after fetch
+        assert!(secrets.cache.contains_key(&cache_key));
     }
 
     #[tokio::test]
-    async fn secrets_miss_returns_none() {
+    async fn secrets_get_cached() {
+        let n = String::from("namespace");
+        let k = String::from("key");
+        let cache_key = format!("{}:{}", &n, &k);
+        let expects = Some(String::from("value"));
+
+        async fn fetcher(_: String, _: String, _: Option<String>, _: Option<String>) -> Option<String> {
+            Some(String::from("{\"key\":\"not-value\"}"))
+        };
+
+        let mut secrets = Secrets::new("us-east-1", fetcher);
+        secrets.cache.insert(cache_key, expects.clone());
+
+        let actual = secrets.get(&n, &k).await;
+
+        assert_eq!(actual, expects);
+    }
+
+    #[tokio::test]
+    async fn secrets_get_invalid_key_returns_none() {
         let n = String::from("namespace");
         let k = String::from("key");
         let expects = None;
