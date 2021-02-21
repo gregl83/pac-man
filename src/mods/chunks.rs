@@ -84,6 +84,36 @@ mod tests {
     use super::*;
 
     #[tokio::test]
+    async fn chunks_option_uknown() {
+        let start = 0;
+        let chunk_length = 10;
+        let end = Some(100);
+        let bytes = "0";
+
+        let expect = None;
+
+        let chunks = Chunks::new(start, chunk_length, end, bytes);
+        let actual = chunks.option("unknown");
+
+        assert_eq!(actual, expect);
+    }
+
+    #[tokio::test]
+    async fn chunks_option_bytes() {
+        let start = 0;
+        let chunk_length = 10;
+        let end = Some(100);
+        let bytes = "0";
+
+        let expect = Some(String::from(bytes.clone()));
+
+        let chunks = Chunks::new(start, chunk_length, end, bytes);
+        let actual = chunks.option("bytes");
+
+        assert_eq!(actual, expect);
+    }
+
+    #[tokio::test]
     async fn chunks_advance_to_round_end() {
         let start = 0;
         let chunk_length = 10;
