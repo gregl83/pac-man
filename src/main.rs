@@ -60,6 +60,7 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
         let uri = source_to_uri(&event["source"]);
         let uri = mods.reduce(uri).await;
         let (headers, body) = http::get_stream(&headers, &uri).await;
+        let content_type = headers.get("content-type").unwrap().to_str().unwrap();
         let content_length: i64 = headers
             .get("content-length")
             .unwrap()
@@ -79,6 +80,7 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
             region,
             collection,
             name.as_str(),
+            content_type,
             content_length,
             body
         ).await;

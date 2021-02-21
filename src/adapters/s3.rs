@@ -15,6 +15,7 @@ pub async fn put_object<'a>(
     region: &'a str,
     bucket: &'a str,
     filename: &'a str,
+    content_type: &'a str,
     content_length: i64,
     body: BodyStream
 ) -> PutObjectOutput {
@@ -24,6 +25,7 @@ pub async fn put_object<'a>(
     client.put_object(PutObjectRequest {
         bucket: String::from(bucket),
         key: String::from(filename),
+        content_type: Some(String::from(content_type)),
         content_length: Some(content_length),
         body: Some(stream),
         ..Default::default()
