@@ -78,3 +78,52 @@ impl Modifier for Chunks {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn chunks_advance_to_round_end() {
+        let start = 0;
+        let chunk_length = 10;
+        let end = Some(100);
+        let bytes = "0";
+
+        let mut chunks = Chunks::new(start, chunk_length, end, bytes);
+
+        let mut iteration_count = 0;
+        let expect_iteration_count = 10;
+        loop {
+            if chunks.chunk_start >= chunks.chunk_end { break; }
+            iteration_count += 1;
+            chunks.advance();
+        }
+
+        assert_eq!(iteration_count, expect_iteration_count);
+        assert_eq!(chunks.chunk_start, 100);
+        assert_eq!(chunks.chunk_end, 100);
+    }
+
+    #[tokio::test]
+    async fn chunks_advance_to_unround_end() {
+        let start = 0;
+        let chunk_length = 10;
+        let end = Some(105);
+        let bytes = "0";
+
+        let mut chunks = Chunks::new(start, chunk_length, end, bytes);
+
+        let mut iteration_count = 0;
+        let expect_iteration_count = 11;
+        loop {
+            if chunks.chunk_start >= chunks.chunk_end { break; }
+            iteration_count += 1;
+            chunks.advance();
+        }
+
+        assert_eq!(iteration_count, expect_iteration_count);
+        assert_eq!(chunks.chunk_start, 105);
+        assert_eq!(chunks.chunk_end, 105);
+    }
+}
