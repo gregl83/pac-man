@@ -84,7 +84,7 @@ mod tests {
     use super::*;
 
     #[tokio::test]
-    async fn chunks_option_uknown() {
+    async fn chunks_option_unknown() {
         let start = 0;
         let chunk_length = 10;
         let end = Some(100);
@@ -111,6 +111,57 @@ mod tests {
         let actual = chunks.option("bytes");
 
         assert_eq!(actual, expect);
+    }
+
+    #[tokio::test]
+    #[should_panic]
+    async fn chunks_modify_no_param() {
+        let start = 0;
+        let chunk_length = 10;
+        let end = Some(100);
+        let bytes = "0";
+
+        let expect = None;
+
+        let mut chunks = Chunks::new(start, chunk_length, end, bytes);
+
+        let actual = chunks.modify(vec![]).await;
+
+        assert_eq!(actual, expect);
+    }
+
+    #[tokio::test]
+    async fn chunks_modify_unknown_param() {
+        let start = 0;
+        let chunk_length = 10;
+        let end = Some(100);
+        let bytes = "0";
+
+        let expect = None;
+
+        let mut chunks = Chunks::new(start, chunk_length, end, bytes);
+
+        let actual = chunks.modify(vec!["unknown"]).await;
+
+        assert_eq!(actual, expect);
+    }
+
+    #[tokio::test]
+    async fn chunks_modify_params() {
+        let start = 0;
+        let chunk_length = 10;
+        let end = Some(100);
+        let bytes = "0";
+
+        let mut chunks = Chunks::new(start, chunk_length, end, bytes);
+
+        let actual_start = chunks.modify(vec!["chunk", "start"]).await;
+        let actual_end = chunks.modify(vec!["chunk", "end"]).await;
+        let actual_index = chunks.modify(vec!["chunk", "index"]).await;
+
+        assert_eq!(actual_start, Some(String::from("0")));
+        assert_eq!(actual_end, Some(String::from("10")));
+        assert_eq!(actual_index, Some(String::from("0")));
     }
 
     #[tokio::test]
