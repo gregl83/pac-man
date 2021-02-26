@@ -1,6 +1,6 @@
 [![Build Status](https://github.com/gregl83/pac-man/workflows/CI/badge.svg?branch=main)](https://github.com/gregl83/pac-man/actions?query=workflow%3ACI+branch%3Amain)
 [![Crates.io](https://img.shields.io/crates/v/pac-man.svg)](https://crates.io/crates/pac-man)
-[![Docs.rs]( https://docs.rs/pac-man/badge.svg)](https://crates.io/crates/pac-man)
+[![Docs.rs]( https://docs.rs/pac-man/badge.svg)](https://docs.rs/crate/pac-man)
 [![MIT licensed](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/gregl83/pac-man/blob/master/LICENSE)
 
 <p align="center"><img src="/assets/pac-man.png" /></p>
