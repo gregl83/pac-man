@@ -57,6 +57,10 @@ impl Modifier for Chunks {
                 "index" => {
                     let index = self.start / self.chunk_length;
                     return Some(format!("{}", index));
+                },
+                "page" => {
+                    let index = self.start / self.chunk_length;
+                    return Some(format!("{}", index + 1));
                 }
                 _ => return None
             }
@@ -158,10 +162,12 @@ mod tests {
         let actual_start = chunks.modify(vec!["chunk", "start"]);
         let actual_end = chunks.modify(vec!["chunk", "end"]);
         let actual_index = chunks.modify(vec!["chunk", "index"]);
+        let actual_page = chunks.modify(vec!["chunk", "page"]);
 
         assert_eq!(actual_start, Some(String::from("0")));
         assert_eq!(actual_end, Some(String::from("10")));
         assert_eq!(actual_index, Some(String::from("0")));
+        assert_eq!(actual_page, Some(String::from("1")));
     }
 
     #[tokio::test]

@@ -137,6 +137,7 @@ By default, `mods` aren't active and must be toggled respectively within the `mo
 `{:chunks:chunk:start}`
 `{:chunks:chunk:end}`
 `{:chunks:chunk:index}`
+`{:chunks:chunk:page}`
 ```json
 {
   "name": "chunks",
