@@ -18,7 +18,7 @@ pub async fn put_object<'a>(
     bucket: &'a str,
     filename: &'a str,
     content_type: &'a str,
-    content_length: i64,
+    content_length: Option<i64>,
     body: BodyStream
 ) -> PutObjectOutput {
     let region = Region::from_str(region).unwrap();
@@ -28,7 +28,7 @@ pub async fn put_object<'a>(
         bucket: String::from(bucket),
         key: String::from(filename),
         content_type: Some(String::from(content_type)),
-        content_length: Some(content_length),
+        content_length,
         body: Some(stream),
         ..Default::default()
     }).await.unwrap()

@@ -9,6 +9,7 @@ pub struct Chunks {
     end: Option<u64>,
     chunk_start: u64,
     chunk_end: u64,
+    chunk_index: u64,
     bytes: String
 }
 
@@ -29,6 +30,7 @@ impl Chunks {
             end,
             chunk_start: start,
             chunk_end,
+            chunk_index: 0,
             bytes: String::from(bytes)
         }
     }
@@ -55,12 +57,10 @@ impl Modifier for Chunks {
                     return Some(format!("{}", self.chunk_end));
                 }
                 "index" => {
-                    let index = self.start / self.chunk_length;
-                    return Some(format!("{}", index));
+                    return Some(format!("{}", self.chunk_index));
                 },
                 "page" => {
-                    let index = self.start / self.chunk_length;
-                    return Some(format!("{}", index + 1));
+                    return Some(format!("{}", self.chunk_index + 1));
                 }
                 _ => return None
             }
@@ -80,6 +80,8 @@ impl Modifier for Chunks {
                 self.chunk_end = end;
             }
         }
+
+        self.chunk_index += 1;
     }
 }
 

@@ -61,14 +61,18 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
         let uri = mods.reduce(uri).await;
         let (headers, body) = http::get_stream(&headers, &uri).await;
         let content_type = headers.get("content-type").unwrap().to_str().unwrap();
-        let content_length: i64 = headers
-            .get("content-length")
-            .unwrap()
-            .to_str()
-            .unwrap()
-            .parse()
-            .unwrap();
-        if content_length < bytes { break; }
+        let content_length: Option<i64> = match headers.get("content-length") {
+            Some(value) => {
+                let content_length: i64 = value
+                    .to_str()
+                    .unwrap()
+                    .parse()
+                    .unwrap();
+                if content_length < bytes { break; }
+                Some(content_length)
+            }
+            _ => None
+        };
 
         // Put Stream into Destination
         let region = event["destination"]["region"].as_str().unwrap();
