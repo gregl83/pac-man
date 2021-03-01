@@ -3,7 +3,6 @@ mod secrets;
 mod uuid;
 
 use regex::Regex;
-use futures::executor::block_on;
 use serde_json::{
     Map,
     Value,
@@ -21,7 +20,7 @@ pub trait Modifier {
 
     fn option(&self, _: &str) -> Option<String> { None }
 
-    async fn modify(&mut self, params: Vec<&str>) -> Option<String>;
+    fn modify(&mut self, params: Vec<&str>) -> Option<String>;
 
     fn advance(&mut self) { }
 }
@@ -92,7 +91,7 @@ impl Modifiers {
 
                 // check if current character position is start of a capture position (modify + push)
                 if i == capture_start {
-                    if let Some(result) = block_on(m.modify(capture_params.clone())) {
+                    if let Some(result) = m.modify(capture_params.clone()) {
                         modified.push_str(result.as_str());
                     }
                     continue;
@@ -178,7 +177,7 @@ mod tests {
         #[async_trait::async_trait]
         impl Modifier for ModifierMock {
             fn key(&self) -> &'static str { "modifier-mock" }
-            async fn modify(&mut self, params: Vec<&str>) -> Option<String> {
+            fn modify(&mut self, params: Vec<&str>) -> Option<String> {
                 Some(format!("{} {}", params[0], params[1]))
             }
         }
@@ -200,7 +199,7 @@ mod tests {
         #[async_trait::async_trait]
         impl Modifier for ModifierMock {
             fn key(&self) -> &'static str { "modifier-mock" }
-            async fn modify(&mut self, params: Vec<&str>) -> Option<String> {
+            fn modify(&mut self, params: Vec<&str>) -> Option<String> {
                 Some(format!("{} {}", params[0], params[1]))
             }
         }
@@ -222,7 +221,7 @@ mod tests {
         #[async_trait::async_trait]
         impl Modifier for ModifierMock {
             fn key(&self) -> &'static str { "modifier-mock" }
-            async fn modify(&mut self, _: Vec<&str>) -> Option<String> {
+            fn modify(&mut self, _: Vec<&str>) -> Option<String> {
                 Some(String::from("modified"))
             }
         }
@@ -244,7 +243,7 @@ mod tests {
         #[async_trait::async_trait]
         impl Modifier for ModifierMock {
             fn key(&self) -> &'static str { "modifier-mock" }
-            async fn modify(&mut self, params: Vec<&str>) -> Option<String> {
+            fn modify(&mut self, params: Vec<&str>) -> Option<String> {
                 Some(format!("{}|{}", params[0], params[1]))
             }
         }
@@ -267,14 +266,14 @@ mod tests {
         #[async_trait::async_trait]
         impl Modifier for ModifierMock {
             fn key(&self) -> &'static str { "modifier-mock" }
-            async fn modify(&mut self, params: Vec<&str>) -> Option<String> {
+            fn modify(&mut self, params: Vec<&str>) -> Option<String> {
                 Some(format!("{{:chained-modifier-mock:{}:{}}}", params[0], params[1]))
             }
         }
         #[async_trait::async_trait]
         impl Modifier for ChainedModifierMock {
             fn key(&self) -> &'static str { "chained-modifier-mock" }
-            async fn modify(&mut self, params: Vec<&str>) -> Option<String> {
+            fn modify(&mut self, params: Vec<&str>) -> Option<String> {
                 Some(format!("{} {}", params[0], params[1]))
             }
         }

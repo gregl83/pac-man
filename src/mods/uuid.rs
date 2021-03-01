@@ -23,7 +23,7 @@ impl Uuid {
 impl Modifier for Uuid {
     fn key(&self) -> &'static str { NAME }
 
-    async fn modify(&mut self, params: Vec<&str>) -> Option<String> {
+    fn modify(&mut self, params: Vec<&str>) -> Option<String> {
         if let Some(key) = params.get(0) {
             let uuid = self.cache
                 .entry(String::from(*key))
@@ -48,7 +48,7 @@ mod tests {
         let params = vec![];
 
         let mut uuid = Uuid::new();
-        let actual = uuid.modify(params).await;
+        let actual = uuid.modify(params);
 
         let uuid_v4 = Regex::new(UUID_V4_PATTERN).unwrap();
 
@@ -60,8 +60,8 @@ mod tests {
         let params = vec!["key"];
 
         let mut uuid = Uuid::new();
-        let actual_first = uuid.modify(params.clone()).await;
-        let actual_second = uuid.modify(params.clone()).await;
+        let actual_first = uuid.modify(params.clone());
+        let actual_second = uuid.modify(params.clone());
 
         let uuid_v4 = Regex::new(UUID_V4_PATTERN).unwrap();
 

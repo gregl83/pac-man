@@ -45,7 +45,7 @@ impl Modifier for Chunks {
         }
     }
 
-    async fn modify(&mut self, params: Vec<&str>) -> Option<String> {
+    fn modify(&mut self, params: Vec<&str>) -> Option<String> {
         if params[0].eq("chunk") {
             match params[1] {
                 "start" => {
@@ -125,7 +125,7 @@ mod tests {
 
         let mut chunks = Chunks::new(start, chunk_length, end, bytes);
 
-        let actual = chunks.modify(vec![]).await;
+        let actual = chunks.modify(vec![]);
 
         assert_eq!(actual, expect);
     }
@@ -141,7 +141,7 @@ mod tests {
 
         let mut chunks = Chunks::new(start, chunk_length, end, bytes);
 
-        let actual = chunks.modify(vec!["unknown"]).await;
+        let actual = chunks.modify(vec!["unknown"]);
 
         assert_eq!(actual, expect);
     }
@@ -155,9 +155,9 @@ mod tests {
 
         let mut chunks = Chunks::new(start, chunk_length, end, bytes);
 
-        let actual_start = chunks.modify(vec!["chunk", "start"]).await;
-        let actual_end = chunks.modify(vec!["chunk", "end"]).await;
-        let actual_index = chunks.modify(vec!["chunk", "index"]).await;
+        let actual_start = chunks.modify(vec!["chunk", "start"]);
+        let actual_end = chunks.modify(vec!["chunk", "end"]);
+        let actual_index = chunks.modify(vec!["chunk", "index"]);
 
         assert_eq!(actual_start, Some(String::from("0")));
         assert_eq!(actual_end, Some(String::from("10")));

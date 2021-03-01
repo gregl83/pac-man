@@ -35,7 +35,7 @@ where
     /// Get secret by name and key
     ///
     /// Uses cache or async service call
-    async fn get(&mut self, n: &str, k: &str) -> Option<String> {
+    fn get(&mut self, n: &str, k: &str) -> Option<String> {
         let cache_key = format!("{}:{}", n, k);
 
         if let Some(s) = self.cache.get_mut(cache_key.as_str()) { return s.clone(); }
@@ -72,8 +72,8 @@ where
     ///
     /// Replaces:  {:secrets:<key>}
     /// With:      <value-for-key>
-    async fn modify(&mut self, params: Vec<&str>) -> Option<String> {
-        self.get(params[0], params[1]).await
+    fn modify(&mut self, params: Vec<&str>) -> Option<String> {
+        self.get(params[0], params[1])
     }
 }
 
@@ -94,7 +94,7 @@ mod tests {
 
         let mut secrets = Secrets::new("us-east-1", fetcher);
 
-        let actual = secrets.get(&n, &k).await;
+        let actual = secrets.get(&n, &k);
 
         assert_eq!(actual, expects);
         // verify cached after fetch
@@ -115,7 +115,7 @@ mod tests {
         let mut secrets = Secrets::new("us-east-1", fetcher);
         secrets.cache.insert(cache_key, expects.clone());
 
-        let actual = secrets.get(&n, &k).await;
+        let actual = secrets.get(&n, &k);
 
         assert_eq!(actual, expects);
     }
@@ -132,7 +132,7 @@ mod tests {
 
         let mut secrets = Secrets::new("us-east-1", fetcher);
 
-        let actual = secrets.get(&n, &k).await;
+        let actual = secrets.get(&n, &k);
 
         assert_eq!(actual, expects);
     }

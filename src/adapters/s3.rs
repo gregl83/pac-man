@@ -6,6 +6,8 @@ use rusoto_s3::{
     S3Client,
     PutObjectRequest,
     PutObjectOutput,
+    HeadObjectRequest,
+    HeadObjectOutput,
     StreamingBody
 };
 
@@ -28,6 +30,20 @@ pub async fn put_object<'a>(
         content_type: Some(String::from(content_type)),
         content_length: Some(content_length),
         body: Some(stream),
+        ..Default::default()
+    }).await.unwrap()
+}
+
+pub async fn get_object_head<'a>(
+    region: &'a str,
+    bucket: &'a str,
+    filename: &'a str,
+) -> HeadObjectOutput {
+    let region = Region::from_str(region).unwrap();
+    let client = S3Client::new(region);
+    client.head_object(HeadObjectRequest {
+        bucket: String::from(bucket),
+        key: String::from(filename),
         ..Default::default()
     }).await.unwrap()
 }

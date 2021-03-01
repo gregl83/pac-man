@@ -85,7 +85,15 @@ async fn func(event: Value, _: Context) -> Result<Value, Error> {
             body
         ).await;
 
-        if !chunking { break; }
+        if chunking {
+            // todo - replace head call with stream byte count
+            let object = s3::get_object_head(
+                region,
+                collection,
+                name.as_str()
+            ).await;
+            if object.content_length.unwrap() < bytes { break; }
+        } else { break; }
 
         // Advance modifiers in event that they track chunks (requests)
         mods.advance();
