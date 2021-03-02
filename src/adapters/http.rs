@@ -2,14 +2,16 @@ use std::io::{
     Error,
     ErrorKind
 };
-use futures::stream::TryStreamExt;
+use futures::stream::{StreamExt, TryStreamExt};
 use http::Request;
 use hyper::{
     Client,
+    header::HeaderValue,
     HeaderMap,
-    Body,
+    Body
 };
 use hyper_tls::HttpsConnector;
+use bytes::{BytesMut, BufMut};
 
 use crate::adapters::BodyStream;
 
@@ -26,11 +28,17 @@ pub async fn get_stream(headers: &Headers, uri: &str) -> (HeaderMap, BodyStream)
     let request = builder.body(Body::empty()).unwrap();
 
     let response = client.request(request).await.unwrap();
+    let mut headers = response.headers().clone();
+    let mut body = response.into_body();
 
-    let headers = response.headers().clone();
-    let body = response
-        .into_body()
-        .map_err(|e| Error::new(ErrorKind::Other, e));
+    if !headers.contains_key("content-length") {
+        let mut bytes = BytesMut::new();
+        while let Some(next) = body.next().await {
+            bytes.put(next.unwrap());
+        }
+        headers.insert("content-length", HeaderValue::from(bytes.len()));
+        body = Body::from(bytes.freeze());
+    }
 
-    (headers, Box::new(body))
+    (headers, Box::new(body.map_err(|e| Error::new(ErrorKind::Other, e))))
 }
