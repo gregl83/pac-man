@@ -233,6 +233,7 @@ Lambda functions can be executed with the help of [Docker](https://github.com/aw
   --runtime provided \
   --region <lambda-region> \
   --role arn:aws:iam::<lambda-create-role> \
+  --timeout <lambda-timeout-seconds> \
   --environment Variables={RUST_BACKTRACE=1} \
   --tracing-config Mode=Active
 ```
