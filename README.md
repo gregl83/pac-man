@@ -218,6 +218,25 @@ Lambda functions can be executed with the help of [Docker](https://github.com/aw
       lambci/lambda:provided
 ```
 
+## Deployment
+
+1. Build Lambda Package Using Docker
+```bash
+../pac-man$ docker run --rm -ti -v ${PWD}:/code softprops/lambda-rust
+```
+
+2. Deploy Lambda Using AWS CLI
+```bash
+../pac-man$ aws lambda create-function --function-name pac-man \
+  --handler doesnt.matter \
+  --zip-file fileb://target/lambda/release/pac-man.zip \
+  --runtime provided \
+  --region <lambda-region> \
+  --role arn:aws:iam::<lambda-create-role> \
+  --environment Variables={RUST_BACKTRACE=1} \
+  --tracing-config Mode=Active
+```
+
 ## References
 
 - [W3 URI Specification](https://www.w3.org/Addressing/URL/uri-spec.html)
