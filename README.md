@@ -19,6 +19,7 @@ Use this generic Lambda service to consume APIs and persist response data in S3.
     - [Secrets](#secrets)
     - [Uuid](#uuid)
 - [Testing](#testing)
+- [Deployment](#deployment)
 - [References](#references)
 
 ## Stability
